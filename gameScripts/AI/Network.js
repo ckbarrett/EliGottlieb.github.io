@@ -64,7 +64,7 @@ class Network {
         // Calculate raw hidden2 activation
         let hidden2 = Matrix.multiply(this.weights_h1_h2, hidden1);
         hidden2.add(this.bias_h2);
-        
+
 
         // Map sigmoid on h2 activation
         hidden2.map(sigmoid);
@@ -73,19 +73,19 @@ class Network {
         let outputs = Matrix.multiply(this.weights_h2_output, hidden2);
         outputs.add(this.bias_output);
 
-        
+
         // Calculater error matrix as targets - outputs
         let errs = Matrix.subtract(targets, outputs)
         let layers = [inputs, hidden1, hidden2, outputs]
         let weights = [this.weights_input_h1, this.weights_h1_h2, this.weights_h2_output]
         let biases = [this.bias_h1, this.bias_h2, this.bias_output]
 
-        for (let i = layers.length - 1; i > 0; i--){
+        for (let i = layers.length - 1; i > 0; i--) {
             let currentLayer = layers[i];
-            let previousLayer = layers[i-1];
-            let gapIndex = i-1;
-            let currentWeights = weights[gapIndex];
-            let currentBiases = biases[gapIndex];
+            let previousLayer = layers[i - 1];
+            let gapIndex = i - 1;
+            console.log("Weights before backpropogation")
+            console.log(weights[gapIndex].data[0][0])
 
             let currentLayer_gradients = Matrix.map(currentLayer, dligmoid);
             currentLayer_gradients.multiply(errs);
@@ -93,13 +93,19 @@ class Network {
 
             let previousLayer_T = Matrix.transpose(previousLayer);
             let weight_deltas = Matrix.multiply(currentLayer_gradients, previousLayer_T);
+            console.log("Deltas")
+            console.log(weight_deltas.data[0][0])
 
-            weights[gapIndex] = currentWeights.add(weight_deltas);
-            biases[gapIndex] = currentBiases.add(currentLayer_gradients);
+            weights[gapIndex].add(weight_deltas);
 
-            let currentWeights_T = Matrix.transpose(currentWeights)
+            console.log("Weights after backpropogation")
+            console.log(weights[gapIndex].data[0][0])
+            biases[gapIndex] = biases[gapIndex].add(currentLayer_gradients);
+
+            let currentWeights_T = Matrix.transpose(weights[gapIndex])
             errs = Matrix.multiply(currentWeights_T, errs)
         }
+
         this.weights_input_h1 = weights[0];
         this.weights_h1_h2 = weights[1];
         this.weights_h2_output = weights[2];
@@ -107,5 +113,6 @@ class Network {
         this.bias_h1 = biases[0];
         this.bias_h2 = biases[1];
         this.bias_output = biases[2];
+
     }
 }
