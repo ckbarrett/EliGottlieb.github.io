@@ -6,7 +6,7 @@ let snake;
 let apple;
 var gameOver = false;
 let inputUsed = false;
-let userInput = false;
+let userInput = true;
 let score = 0;
 let genCount = 1;
 
@@ -183,7 +183,7 @@ function draw() {
   }
   if (!userInput) {
     snake.getInputFromSnake();
-    document.getElementById("generation-counter").innerText = "Generation: " + genCount;
+    document.getElementById("generation-counter").innerText = " - Generation: " + genCount;
   }
   checkEatingApple();
   snake.move();
