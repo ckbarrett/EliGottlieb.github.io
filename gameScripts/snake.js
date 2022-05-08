@@ -37,7 +37,7 @@ class Snake {
       }
     }
     getInputFromSnake(){
-        goDown();
+        
     }
   }
   
