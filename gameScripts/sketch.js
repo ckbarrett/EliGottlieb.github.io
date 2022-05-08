@@ -106,7 +106,7 @@ function checkEatingApple() {
     apple.square = apple.getRandomSquare();
     drawSquare(apple.square, color(255,0,0));
     score++;
-    document.getElementById("tail-counter").innerText = score;
+    document.getElementById("score-counter").innerText = score;
   }
 }
 
@@ -130,6 +130,8 @@ function snakeContains(x,y){
 function restartGame() {
   snake = new Snake();
   apple = new Apple();
+  score = 0;
+  document.getElementById("score-counter").innerText = score;
   background(255);
   drawSnakeComplete();
   drawSquare(apple.square, color(255,0,0));
