@@ -35,10 +35,6 @@ class Matrix {
         return this.map(e => Math.random() * 2 - 1);
     }
 
-    static fromArray(arr) {
-        return new Matrix(arr.length, 1).map((e, i) => arr[i])
-    }
-
     static transpose(matrix) {
         return new Matrix(matrix.cols, matrix.rows).map((_, i, j) => matrix.data[j][i]);
     }
