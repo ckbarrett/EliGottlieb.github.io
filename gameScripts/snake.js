@@ -12,6 +12,7 @@ class Snake {
       this.oldTailyDir = 0;
       this.xDir = [1, 1, 1];
       this.yDir = [0, 0, 0];
+      this.count = 0;
     } 
     move() {
       // Update old tail
@@ -34,6 +35,9 @@ class Snake {
         this.xDir[i] = this.xDir[i + 1];
         this.yDir[i] = this.yDir[i + 1];
       }
+    }
+    getInputFromSnake(){
+        
     }
   }
   

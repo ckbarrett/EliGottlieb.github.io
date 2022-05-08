@@ -1,11 +1,12 @@
 let squareWidth = 30;
 let xOffset = 5; 
 let yOffset = 5;
-let fr = 15;
+let fr;
 let snake;
 let apple;
 var gameOver = false;
 let inputUsed = false;
+let userInput = true;
 
 ///////////////// Util Functions ///////////////////////
 function drawSquare(square, clr) {
@@ -133,12 +134,31 @@ function restartGame() {
   gameOver = false;
 }
 
+function goUp(){
+  snake.xDir[snake.xDir.length - 1] = 0;
+  snake.yDir[snake.yDir.length - 1] = -1;
+}
+function goDown(){
+  snake.xDir[snake.xDir.length - 1] = 0;
+  snake.yDir[snake.yDir.length - 1] = 1;
+}
+function goLeft(){
+  snake.xDir[snake.xDir.length - 1] = -1;
+  snake.yDir[snake.yDir.length - 1] = 0;
+}
+function goRight(){
+  snake.xDir[snake.xDir.length - 1] = 1;
+  snake.yDir[snake.yDir.length - 1] = 0;
+}
+
+
 ///////////////// End Util Functions /////////////////////////////////////////
 
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
+  fr = userInput ? 15 : 100;
   frameRate(fr);
   restartGame();
 }
@@ -146,9 +166,15 @@ function setup() {
 function draw() {
   checkCollisions();
   if(gameOver) { 
-    drawPlayAgainButton();
-    return; 
+    if(userInput) {
+      drawPlayAgainButton();
+      return; 
+    } else {
+      restartGame();
+      return;
+    }
   }
+  if(!userInput) snake.getInputFromSnake();
   checkEatingApple();
   snake.move();
   drawSnake();
@@ -165,29 +191,26 @@ function windowResized() {
 }
 
 function keyPressed() {
+  if(!userInput) return;
   switch (keyCode) {
     case UP_ARROW:
       if((snake.yDir[snake.yDir.length - 1] != 0) || inputUsed) break;
-      snake.xDir[snake.xDir.length - 1] = 0;
-      snake.yDir[snake.yDir.length - 1] = -1;
+      goUp();
       inputUsed = true;
       break;
     case DOWN_ARROW:
       if((snake.yDir[snake.yDir.length - 1] != 0) || inputUsed) break;
-      snake.xDir[snake.xDir.length - 1] = 0;
-      snake.yDir[snake.yDir.length - 1] = 1;
+      goDown();
       inputUsed = true;
       break;
     case LEFT_ARROW:
       if((snake.xDir[snake.xDir.length - 1] != 0) || inputUsed) break;
-      snake.xDir[snake.xDir.length - 1] = -1;
-      snake.yDir[snake.yDir.length - 1] = 0;
+      goLeft();
       inputUsed = true;
       break;
     case RIGHT_ARROW:
       if((snake.xDir[snake.xDir.length - 1] != 0) || inputUsed) break;
-      snake.xDir[snake.xDir.length - 1] = 1;
-      snake.yDir[snake.yDir.length - 1] = 0;
+      goRight();
       inputUsed = true;
       break;
   }
