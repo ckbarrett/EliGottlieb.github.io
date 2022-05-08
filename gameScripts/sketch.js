@@ -1,13 +1,14 @@
 let squareWidth = 30;
-let xOffset = 5; 
+let xOffset = 5;
 let yOffset = 5;
 let fr;
 let snake;
 let apple;
 var gameOver = false;
 let inputUsed = false;
-let userInput = true;
+let userInput = false;
 let score = 0;
+let genCount = 1;
 
 ///////////////// Util Functions ///////////////////////
 function drawSquare(square, clr) {
@@ -22,29 +23,29 @@ function drawRect(x, y, w, h, clr) {
   rect(x, y, w, h);
 }
 
-function drawSnake(){
-  drawSquare(snake.oldTail, color(255,255,255));
-  drawOffset(snake.oldTail, snake.oldTailxDir, snake.oldTailyDir, color(255,255,255));
-  drawSquare(snake.head, color(0,255,0));
-  drawOffset(snake.squares[snake.squares.length - 2], snake.xDir[snake.xDir.length - 2], 
-    snake.yDir[snake.yDir.length - 2], color(0,255,0));
+function drawSnake() {
+  drawSquare(snake.oldTail, color(255, 255, 255));
+  drawOffset(snake.oldTail, snake.oldTailxDir, snake.oldTailyDir, color(255, 255, 255));
+  drawSquare(snake.head, color(0, 255, 0));
+  drawOffset(snake.squares[snake.squares.length - 2], snake.xDir[snake.xDir.length - 2],
+    snake.yDir[snake.yDir.length - 2], color(0, 255, 0));
 }
 
 function drawSnakeComplete() {
   // Draw Squares
-  for(let i = 0; i < snake.squares.length; i++){
+  for (let i = 0; i < snake.squares.length; i++) {
     let sq = snake.squares[i];
-    drawSquare(sq, color(0,255,0));
+    drawSquare(sq, color(0, 255, 0));
   }
   // Fill offsets
-  for(let i = 0; i < snake.squares.length -1; i++) {
-    drawOffset(snake.squares[i], snake.xDir[i], snake.yDir[i], color(0,255,0));
+  for (let i = 0; i < snake.squares.length - 1; i++) {
+    drawOffset(snake.squares[i], snake.xDir[i], snake.yDir[i], color(0, 255, 0));
   }
 }
 
 function drawOffset(sq, xDir, yDir, clr) {
-  if(xDir != 0){
-    if(xDir == -1){
+  if (xDir != 0) {
+    if (xDir == -1) {
       // This square going left
       drawRect(sq.x - xOffset, sq.y, xOffset, squareWidth, clr);
     } else {
@@ -52,7 +53,7 @@ function drawOffset(sq, xDir, yDir, clr) {
       drawRect(sq.x + squareWidth, sq.y, xOffset, squareWidth, clr);
     }
   } else {
-    if(yDir == -1) {
+    if (yDir == -1) {
       // This square going up
       drawRect(sq.x, sq.y - yOffset, squareWidth, yOffset, clr);
     } else {
@@ -62,15 +63,15 @@ function drawOffset(sq, xDir, yDir, clr) {
   }
 }
 
-function drawPlayAgainButton(){
+function drawPlayAgainButton() {
   let playAgainRectWidth = 200;
   let playAgainRectHeight = 50;
   let playAgainx = (width - playAgainRectWidth) / 2;
   let playAgainy = (height - playAgainRectHeight) / 2;
-  fill(color(255,0,0));
+  fill(color(255, 0, 0));
   stroke(0);
   strokeWeight(4);
-  rect(playAgainx,playAgainy,playAgainRectWidth,playAgainRectHeight);
+  rect(playAgainx, playAgainy, playAgainRectWidth, playAgainRectHeight);
   textSize(32);
   fill(0);
   text('Play Again', playAgainx + 25, playAgainy + 35);
@@ -87,25 +88,25 @@ function checkCollisions() {
     (snake.yDir[snake.yDir.length - 1] == 1);
   let hitTopWall = (snake.head.y - ytile < 0) && (snake.yDir[snake.yDir.length - 1] == -1);
   let hittingSelf = false;
-  for(let i = 0; i < snake.squares.length - 1; i++){
+  for (let i = 0; i < snake.squares.length - 1; i++) {
     let sq = snake.squares[i];
-    if((sq.x == snake.head.x) && (sq.y == snake.head.y)) {
+    if ((sq.x == snake.head.x) && (sq.y == snake.head.y)) {
       hittingSelf = true;
       break;
     }
   }
-  if(hitRightWall || hitLeftWall || hitBottomWall || hitTopWall || hittingSelf){
+  if (hitRightWall || hitLeftWall || hitBottomWall || hitTopWall || hittingSelf) {
     gameOver = true;
   }
 }
 
 function checkEatingApple() {
-  if((snake.head.x == apple.square.x) && (snake.head.y == apple.square.y)) {
+  if ((snake.head.x == apple.square.x) && (snake.head.y == apple.square.y)) {
     snake.squares.unshift(new Square(snake.oldTail.x, snake.oldTail.y, squareWidth))
     snake.xDir.unshift(snake.oldTailxDir);
     snake.yDir.unshift(snake.oldTailyDir);
     apple.square = apple.getRandomSquare();
-    drawSquare(apple.square, color(255,0,0));
+    drawSquare(apple.square, color(255, 0, 0));
     score++;
     document.getElementById("score-counter").innerText = score;
   }
@@ -120,10 +121,10 @@ function calculateCanvasSize() {
   return { canvasWidth, canvasHeight };
 }
 
-function snakeContains(x,y){
-  for(let i = 0; i < snake.squares.length; i++){
+function snakeContains(x, y) {
+  for (let i = 0; i < snake.squares.length; i++) {
     let sq = snake.squares[i];
-    if(sq.x == x && sq.y == y) return true;
+    if (sq.x == x && sq.y == y) return true;
   }
   return false;
 }
@@ -135,23 +136,23 @@ function restartGame() {
   document.getElementById("score-counter").innerText = score;
   background(255);
   drawSnakeComplete();
-  drawSquare(apple.square, color(255,0,0));
+  drawSquare(apple.square, color(255, 0, 0));
   gameOver = false;
 }
 
-function goUp(){
+function goUp() {
   snake.xDir[snake.xDir.length - 1] = 0;
   snake.yDir[snake.yDir.length - 1] = -1;
 }
-function goDown(){
+function goDown() {
   snake.xDir[snake.xDir.length - 1] = 0;
   snake.yDir[snake.yDir.length - 1] = 1;
 }
-function goLeft(){
+function goLeft() {
   snake.xDir[snake.xDir.length - 1] = -1;
   snake.yDir[snake.yDir.length - 1] = 0;
 }
-function goRight(){
+function goRight() {
   snake.xDir[snake.xDir.length - 1] = 1;
   snake.yDir[snake.yDir.length - 1] = 0;
 }
@@ -170,16 +171,20 @@ function setup() {
 
 function draw() {
   checkCollisions();
-  if(gameOver) { 
-    if(userInput) {
+  if (gameOver) {
+    if (userInput) {
       drawPlayAgainButton();
-      return; 
+      return;
     } else {
+      genCount++
       restartGame();
       return;
     }
   }
-  if(!userInput) snake.getInputFromSnake();
+  if (!userInput) {
+    snake.getInputFromSnake();
+    document.getElementById("generation-counter").innerText = "Generation: " + genCount;
+  }
   checkEatingApple();
   snake.move();
   drawSnake();
@@ -192,29 +197,29 @@ function windowResized() {
   background(255);
   drawSnakeComplete();
   apple.square = apple.getRandomSquare();
-  drawSquare(apple.square, color(255,0,0));
+  drawSquare(apple.square, color(255, 0, 0));
 }
 
 function keyPressed() {
-  if(!userInput) return;
+  if (!userInput) return;
   switch (keyCode) {
     case UP_ARROW:
-      if((snake.yDir[snake.yDir.length - 1] != 0) || inputUsed) break;
+      if ((snake.yDir[snake.yDir.length - 1] != 0) || inputUsed) break;
       goUp();
       inputUsed = true;
       break;
     case DOWN_ARROW:
-      if((snake.yDir[snake.yDir.length - 1] != 0) || inputUsed) break;
+      if ((snake.yDir[snake.yDir.length - 1] != 0) || inputUsed) break;
       goDown();
       inputUsed = true;
       break;
     case LEFT_ARROW:
-      if((snake.xDir[snake.xDir.length - 1] != 0) || inputUsed) break;
+      if ((snake.xDir[snake.xDir.length - 1] != 0) || inputUsed) break;
       goLeft();
       inputUsed = true;
       break;
     case RIGHT_ARROW:
-      if((snake.xDir[snake.xDir.length - 1] != 0) || inputUsed) break;
+      if ((snake.xDir[snake.xDir.length - 1] != 0) || inputUsed) break;
       goRight();
       inputUsed = true;
       break;
@@ -222,15 +227,15 @@ function keyPressed() {
 }
 
 function mouseReleased() {
-  if(gameOver) {
+  if (gameOver) {
     let playAgainRectWidth = 200;
     let playAgainRectHeight = 50;
     let playAgainx = (width - playAgainRectWidth) / 2;
     let playAgainy = (height - playAgainRectHeight) / 2;
-    if((mouseX >= playAgainx) && (mouseX <= (playAgainx + playAgainRectWidth)) &&
+    if ((mouseX >= playAgainx) && (mouseX <= (playAgainx + playAgainRectWidth)) &&
       (mouseY >= playAgainy) && (mouseY <= (playAgainy + playAgainRectHeight))) {
-        restartGame();
-      }
+      restartGame();
+    }
   }
 }
 ///////////////////////// End P5 Functions ///////////////////////////
