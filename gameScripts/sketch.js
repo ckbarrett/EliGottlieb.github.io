@@ -138,6 +138,7 @@ function restartGame() {
   drawSnakeComplete();
   drawSquare(apple.square, color(255, 0, 0));
   gameOver = false;
+  if(!userInput) document.getElementById("generation-counter").innerText = "Generation: " + genCount;
 }
 
 function goUp() {
