@@ -6,6 +6,7 @@ let snake;
 let apple;
 var gameOver = false;
 let inputUsed = false;
+let score = 0;
 
 ///////////////// Util Functions ///////////////////////
 function drawSquare(square, clr) {
@@ -104,6 +105,8 @@ function checkEatingApple() {
     snake.yDir.unshift(snake.oldTailyDir);
     apple.square = apple.getRandomSquare();
     drawSquare(apple.square, color(255,0,0));
+    score++;
+    document.getElementById("tail-counter").innerText = score;
   }
 }
 
