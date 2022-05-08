@@ -21,7 +21,7 @@ class Network {
         this.bias_h2.randomize();
         this.bias_output.randomize();
 
-        this.learningrate = 0.2;
+        this.learningrate = 0.02;
     }
 
     predict(input_array) {
@@ -84,8 +84,6 @@ class Network {
             let currentLayer = layers[i];
             let previousLayer = layers[i - 1];
             let gapIndex = i - 1;
-            console.log("Weights before backpropogation")
-            console.log(weights[gapIndex].data[0][0])
 
             let currentLayer_gradients = Matrix.map(currentLayer, dligmoid);
             currentLayer_gradients.multiply(errs);
@@ -93,14 +91,9 @@ class Network {
 
             let previousLayer_T = Matrix.transpose(previousLayer);
             let weight_deltas = Matrix.multiply(currentLayer_gradients, previousLayer_T);
-            console.log("Deltas")
-            console.log(weight_deltas.data[0][0])
 
             weights[gapIndex].add(weight_deltas);
-
-            console.log("Weights after backpropogation")
-            console.log(weights[gapIndex].data[0][0])
-            biases[gapIndex] = biases[gapIndex].add(currentLayer_gradients);
+            biases[gapIndex].add(currentLayer_gradients);
 
             let currentWeights_T = Matrix.transpose(weights[gapIndex])
             errs = Matrix.multiply(currentWeights_T, errs)

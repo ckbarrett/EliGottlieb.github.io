@@ -184,8 +184,7 @@ let training_data = [{
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
   n = new Network(2, 2, 2, 1)
-  for (let i = 0; i < 1; i++) {
-    console.log("pog")
+  for (let i = 0; i < 1000; i++) {
     let data = random(training_data);
     n.train(data.inputs, data.outputs);
   }
