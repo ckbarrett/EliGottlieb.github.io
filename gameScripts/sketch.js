@@ -1,11 +1,3 @@
-// Square Class 
-class Square {
-  constructor(x, y, width) {
-      this.x = x;
-      this.y = y;
-      this.width = width;
-  }
-}
 
 let squareWidth = 30;
 let xOffset = 5; 
