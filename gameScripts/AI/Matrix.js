@@ -1,24 +1,35 @@
 class Matrix {
     constructor(rows, cols) {
-        this.rows = rows
-        this.cols = cols
-        this.data = Array(this.rows).fill().map(() => Array(this.cols).fill(0))
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array(this.rows).fill().map(() => Array(this.cols).fill(0));
     }
 
-    map(f) {
+    copy() {
+        let m = new Matrix(this.rows, this.cols);
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.cols; j++) {
-                this.data[i][j] = f(this.data[i][j], i, j)
+                m.data[i][j] = this.data[i][j];
             }
         }
-    }
-
-    static map(matrix, func) {
-        return new Matrix(matrix.rows, matrix.cols).map((e, i, j) => func(matrix.data[i][j], i, j));
+        return m;
     }
 
     static fromArray(arr) {
-        return new Matrix(arr.length, 1).map((e, i) => arr[i]);
+        let x = new Matrix(arr.length, 1).map((e, i) => arr[i]);
+        //console.table(x);
+        return x;
+    }
+
+    static subtract(a, b) {
+        if (a.rows !== b.rows || a.cols !== b.cols) {
+            console.log('Columns and Rows of A must match Columns and Rows of B for subtraction.');
+            return;
+        }
+
+        // Return a new Matrix a-b
+        return new Matrix(a.rows, a.cols)
+            .map((_, i, j) => a.data[i][j] - b.data[i][j]);
     }
 
     toArray() {
@@ -35,16 +46,21 @@ class Matrix {
         return this.map(e => Math.random() * 2 - 1);
     }
 
-    static transpose(matrix) {
-        return new Matrix(matrix.cols, matrix.rows).map((_, i, j) => matrix.data[j][i]);
+    add(n) {
+        if (n instanceof Matrix) {
+            if (this.rows !== n.rows || this.cols !== n.cols) {
+                console.log('Columns and Rows of A must match Columns and Rows of B to add.');
+                return;
+            }
+            return this.map((e, i, j) => e + n.data[i][j]);
+        } else {
+            return this.map(e => e + n);
+        }
     }
 
-    static subtract(a, b) {
-        if (a.rows != b.rows || a.cols != b.cols) {
-            console.log("Rows and cols must match");
-            return;
-        }
-        return new Matrix(a.rows, a.cols).map((_, i, j) => a.data[i][j] - b.data[i][j])
+    static transpose(matrix) {
+        return new Matrix(matrix.cols, matrix.rows)
+            .map((_, i, j) => matrix.data[j][i]);
     }
 
     static multiply(a, b) {
@@ -66,33 +82,42 @@ class Matrix {
     }
 
     multiply(n) {
-        //Matrix by matrix or scalar by matrix
         if (n instanceof Matrix) {
+            
             if (this.rows !== n.rows || this.cols !== n.cols) {
-                console.log('Columns and Rows of A must match Columns and Rows of B.');
+                console.table(this)
+                console.table(n)
+                throw 'Columns and Rows of A must match Columns and Rows of B to multiply.';
                 return;
             }
+
+            // hadamard product
             return this.map((e, i, j) => e * n.data[i][j]);
         } else {
+            // Scalar product
             return this.map(e => e * n);
         }
     }
 
-    add(n) {
-        //Matrix by matrix or scalar by matrix
-        if (n instanceof Matrix) {
-            if (this.rows !== n.rows || this.cols !== n.cols) {
-                console.log('Columns and Rows of A must match Columns and Rows of B.');
-                return;
+    map(func) {
+        // Apply a function to every element of matrix
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                let val = this.data[i][j];
+                this.data[i][j] = func(val, i, j);
             }
-            return this.map((e, i, j) => e + n.data[i][j]);
-        } else {
-            return this.map(e => e + n);
         }
+        return this;
+    }
+
+    static map(matrix, func) {
+        // Apply a function to every element of matrix
+        return new Matrix(matrix.rows, matrix.cols)
+            .map((e, i, j) => func(matrix.data[i][j], i, j));
     }
 
     print() {
-        console.table(this.data)
+        console.table(this.data);
         return this;
     }
 }

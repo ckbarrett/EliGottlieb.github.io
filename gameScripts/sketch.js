@@ -161,8 +161,40 @@ function goRight() {
 
 ///////////////// End Util Functions /////////////////////////////////////////
 
+
+///////////////// XOR Example ////////////////////////////////////////////////
+
+let training_data = [{
+  inputs: [0, 0],
+  outputs: [0]
+},
+{
+  inputs: [0, 1],
+  outputs: [1]
+},
+{
+  inputs: [1, 0],
+  outputs: [1]
+},
+{
+  inputs: [1, 1],
+  outputs: [0]
+}];
+
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
+  n = new Network(2, 2, 2, 1)
+  for (let i = 0; i < 5; i++) {
+    console.log("pog")
+    let data = random(training_data);
+    n.train(data.inputs, data.outputs);
+  }
+
+  console.log(n.predict([1,0]));
+  console.log(n.predict([0,1]));
+  console.log(n.predict([1,1]));
+  console.log(n.predict([0,0]));
+
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
   fr = userInput ? 15 : 100;
