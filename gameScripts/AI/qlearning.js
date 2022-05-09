@@ -18,7 +18,7 @@ let actions = [up, down, left, right]
 */
 let qLearningRate = 0.85;
 let qDiscountFactor = 0.9;
-let randomize = 0.05;
+let randomize = 0.01;
 
 class QLearner {
     constructor() {
@@ -31,10 +31,9 @@ class QLearner {
     qlength() {
         return Object.keys(this.qTable).length;
     }
-    
+
     getCurrentState() {
         // Get direction of snake
-        
         let xDir = this.snake.xDir[this.snake.xDir.length - 1];
         let yDir = this.snake.yDir[this.snake.yDir.length - 1];
         let directionStates = []

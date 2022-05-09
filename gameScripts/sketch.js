@@ -7,11 +7,19 @@ let apple;
 var gameOver = false;
 let inputUsed = false;
 let userInput = false;
-let score = 0;
+var score = 0;
 let highscore = 0;
 let genCount = 1;
 
 ///////////////// Util Functions ///////////////////////
+function resetJimmy() {
+  console.log("Jimmy has been wiped.")
+  window.localStorage.setItem("qTable", {})
+  window.localStorage.setItem("age", 0)
+  qlearner.qTable = {}
+  restartGame()
+}
+
 function drawSquare(square, clr) {
   fill(clr);
   noStroke();
@@ -35,8 +43,8 @@ function drawSnake() {
 function drawSnakeComplete() {
   // Draw Squares
   for (let i = 0; i < snake.squares.length; i++) {
-    let sq = snake.squares[i];
-    drawSquare(sq, color(0, 255, 0));
+    let tempsq = snake.squares[i];
+    drawSquare(tempsq, color(0, 255, 0));
   }
   // Fill offsets
   for (let i = 0; i < snake.squares.length - 1; i++) {
@@ -90,8 +98,8 @@ function checkCollisions() {
   let hitTopWall = (snake.head.y - ytile < 0) && (snake.yDir[snake.yDir.length - 1] == -1);
   let hittingSelf = false;
   for (let i = 0; i < snake.squares.length - 1; i++) {
-    let sq = snake.squares[i];
-    if ((sq.x == snake.head.x) && (sq.y == snake.head.y)) {
+    let tempsq = snake.squares[i];
+    if ((tempsq.x == snake.head.x) && (tempsq.y == snake.head.y)) {
       hittingSelf = true;
       break;
     }
@@ -110,8 +118,7 @@ function checkEatingApple() {
     drawSquare(apple.square, color(255, 0, 0));
     score++;
     document.getElementById("score-counter").innerText = score;
-    if (score > highscore)
-    {
+    if (score > highscore) {
       highscore = score
       document.getElementById("high-score").innerText = highscore;
     }
@@ -131,35 +138,37 @@ function calculateCanvasSize() {
 
 function snakeContains(x, y) {
   for (let i = 0; i < snake.squares.length; i++) {
-    let sq = snake.squares[i];
-    if (sq.x == x && sq.y == y) return true;
+    let tempsq = snake.squares[i];
+    if (tempsq.x == x && tempsq.y == y) return true;
   }
   return false;
 }
 
 function restartGame() {
   snake = new Snake();
-  qlearner.snake = snake;
   apple = new Apple();
-  qlearner.apple = apple;
+  if (!userInput) {
+    try {
+      qlearner.qTable = JSON.parse(window.localStorage.getItem("qTable"))
+      console.log(Object.keys(qlearner.qTable).length)
+    }
+    catch (e) {
+      console.log("Storage is empty.")
+    }
+    qlearner.snake = snake;
+    qlearner.apple = apple;
+    let globalgencount = parseInt(window.localStorage.getItem("age"))
+    globalgencount++;
+    window.localStorage.setItem("age", globalgencount)
+    if (!userInput) document.getElementById("generation-counter").innerText = "Jimmy's: " + globalgencount;
+  }
   score = 0;
-  try {
-    qlearner.qTable = JSON.parse(window.localStorage.getItem("qTable"))
-  }
-  catch (e)
-  {
-    console.log("Storage is empty.")
-  }
-  
   document.getElementById("score-counter").innerText = score;
   background(255);
   drawSnakeComplete();
   drawSquare(apple.square, color(255, 0, 0));
   gameOver = false;
-  let globalgencount = parseInt(window.localStorage.getItem("age"))
-  globalgencount++;
-  window.localStorage.setItem("age", globalgencount)
-  if (!userInput) document.getElementById("generation-counter").innerText = "Jimmy's: " + globalgencount;
+
 }
 
 function goUp() {
@@ -179,7 +188,7 @@ function goRight() {
   snake.yDir[snake.yDir.length - 1] = 0;
 }
 function doAction(action) {
-  switch(action){
+  switch (action) {
     case 'up':
       goUp();
       break;
@@ -195,12 +204,12 @@ function doAction(action) {
   }
 }
 
-function onRightEdge(){
-  if(snake.head.x + squareWidth >= width) return true;
+function onRightEdge() {
+  if (snake.head.x + squareWidth >= width) return true;
   else return false;
 }
-function onBottomEdge(){
-  if(snake.head.y + squareWidth >= height) return true;
+function onBottomEdge() {
+  if (snake.head.y + squareWidth >= height) return true;
   else return false;
 }
 
@@ -234,9 +243,14 @@ let training_data = [{
 let qlearner;
 
 function setup() {
+  if (userInput) {
+    document.getElementById("reset").style.visibility = "hidden"
+  }
+  else {
+    qlearner = new QLearner(snake, apple);
+    document.getElementById("reset").onclick = resetJimmy
+  }
   n = new Network(2, 16, 16, 1)
-  //window.localStorage.setItem("qTable", {})
-  //window.localStorage.setItem("age", 0)
   /*
   for (let i = 0; i < 2000; i++) {
     let data = random(training_data);
@@ -254,9 +268,8 @@ function setup() {
 
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
-  fr = userInput ? 15 : 1000;
+  fr = userInput ? 15 : 5000;
   frameRate(fr);
-  qlearner = new QLearner(snake, apple);
   restartGame();
 }
 
@@ -271,10 +284,8 @@ function draw() {
   }
   // Check if eating apple
   let reward = 0;
-  if(checkEatingApple()){
-    reward = 500;
-  } else {
-    reward = 0;
+  if (checkEatingApple()) {
+    reward = 5000;
   }
   // Check for collisions and end game
   checkCollisions();
@@ -283,13 +294,12 @@ function draw() {
       drawPlayAgainButton();
       return;
     } else {
-      console.log(Object.keys(qlearner.qTable).length)
-      window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
       genCount++;
       snake.move();
       let newState = qlearner.getCurrentState();
-      reward = -1000;
+      reward = -5000;
       qlearner.updateQTable(oldState, newState, reward, action);
+      window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
       restartGame();
       return;
     }
@@ -300,8 +310,10 @@ function draw() {
   inputUsed = false;
   // Train the snake
   if (!userInput) {
+    console.log("Moved.")
     let newState = qlearner.getCurrentState();
     qlearner.updateQTable(oldState, newState, reward, action);
+    window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
   }
 }
 
