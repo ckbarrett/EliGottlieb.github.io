@@ -36,8 +36,5 @@ class Snake {
         this.yDir[i] = this.yDir[i + 1];
       }
     }
-    getInputFromSnake(){
-        goDown();
-    }
   }
   

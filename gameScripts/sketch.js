@@ -109,7 +109,9 @@ function checkEatingApple() {
     drawSquare(apple.square, color(255, 0, 0));
     score++;
     document.getElementById("score-counter").innerText = score;
+    return true;
   }
+  return false;
 }
 
 function calculateCanvasSize() {
@@ -157,6 +159,31 @@ function goRight() {
   snake.xDir[snake.xDir.length - 1] = 1;
   snake.yDir[snake.yDir.length - 1] = 0;
 }
+function doAction(action) {
+  switch(action){
+    case 'up':
+      goUp();
+      break;
+    case 'down':
+      goDown();
+      break;
+    case 'left':
+      goLeft();
+      break;
+    case 'right':
+      goRight();
+      break;
+  }
+}
+
+function onRightEdge(){
+  if(snake.head.x + squareWidth >= width) return true;
+  else return false;
+}
+function onBottomEdge(){
+  if(snake.head.y + squareWidth >= height) return true;
+  else return false;
+}
 
 
 ///////////////// End Util Functions /////////////////////////////////////////
@@ -182,6 +209,8 @@ let training_data = [{
 }];
 
 //////////////// P5 Functions /////////////////////////////////////////////////
+let qlearner;
+
 function setup() {
   n = new Network(2, 2, 2, 1)
   for (let i = 0; i < 1000; i++) {
@@ -196,31 +225,54 @@ function setup() {
 
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
-  fr = userInput ? 15 : 100;
+  fr = userInput ? 15 : 30;
   frameRate(fr);
   restartGame();
+  qlearner = new QLearner(snake, apple);
 }
 
 function draw() {
+  // Get snake move
+  let oldState = null;
+  let action = null;
+  if (!userInput) {
+    oldState = qlearner.getCurrentState();
+    action = qlearner.bestAction(oldState);
+    doAction(action);
+    document.getElementById("generation-counter").innerText = " - Generation: " + genCount;
+  }
+  // Check for collisions and end game
   checkCollisions();
   if (gameOver) {
     if (userInput) {
       drawPlayAgainButton();
       return;
     } else {
-      genCount++
+      genCount++;
+
+
+
       restartGame();
       return;
     }
   }
-  if (!userInput) {
-    snake.getInputFromSnake();
-    document.getElementById("generation-counter").innerText = " - Generation: " + genCount;
+
+  // Update the game 
+  let reward = 0;
+  if(checkEatingApple()){
+    reward = 10;
+  } else {
+    reward = 0;
   }
-  checkEatingApple();
   snake.move();
   drawSnake();
   inputUsed = false;
+  // Train the snake
+  if (!userInput) {
+    let newState = qlearner.getCurrentState();
+    qlearner.updateQTable(oldState, newState, reward, action);
+  }
+
 }
 
 function windowResized() {
