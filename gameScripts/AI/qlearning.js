@@ -163,14 +163,14 @@ class State {
     }
     toString(){
         let state = ""
-        for(let val in this.dangerStates){
-            state += val + ","
+        for(let i = 0; i < this.dangerStates.length; i++){
+            state += this.dangerStates[i] + ","
         }
-        for(let val in this.directionStates){
-            state += val + ","
+        for(let i = 0; i < this.directionStates.length; i++){
+            state += this.directionStates[i] + ","
         }
-        for(let val in this.foodStates){
-            state += val + ","
+        for(let i = 0; i < this.foodStates.length; i++){
+            state += this.foodStates[i] + ","
         }
         return state;
     }
