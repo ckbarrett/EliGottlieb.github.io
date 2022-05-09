@@ -153,11 +153,16 @@ class QLearner {
         return "right"
     }
 
-    updateBrain(state0, state1, reward, act) {
+    updateBrain(state0, state1, reward, act, done) {
         //console.log(max(this.brain.predict(state1.toArary())))
-        var newValue = reward + qDiscountFactor * max(this.brain.predict(state1.toArary())) - max(this.brain.predict(state0.toArary()));
+        let newValue;
+        if(done){
+            newValue = reward;
+        } else {
+            newValue = reward + qDiscountFactor * max(this.brain.predict(state1.toArary())) - max(this.brain.predict(state0.toArary()));
+        }
         //console.log("New value: " + newValue)
-        var newQ = (1 - qLearningRate) * max(this.brain.predict(state0.toArary())) + qLearningRate * newValue;
+        let newQ = (1 - qLearningRate) * max(this.brain.predict(state0.toArary())) + qLearningRate * newValue;
         let outputs = this.brain.predict(state0.toArary())
         if(act == "up") {
             outputs[0] = newQ

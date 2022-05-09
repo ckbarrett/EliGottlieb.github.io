@@ -291,7 +291,7 @@ function draw() {
       snake.move();
       let newState = qlearner.getCurrentState();
       reward = -5000;
-      qlearner.updateBrain(oldState, newState, reward, action);
+      qlearner.updateBrain(oldState, newState, reward, action, true);
       //window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
       restartGame();
       return;
@@ -304,7 +304,7 @@ function draw() {
   // Train the snake
   if (!userInput) {
     let newState = qlearner.getCurrentState();
-    qlearner.updateBrain(oldState, newState, reward, action);
+    qlearner.updateBrain(oldState, newState, reward, action, false);
     //window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
   }
 }
