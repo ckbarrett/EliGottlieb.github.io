@@ -14,9 +14,8 @@ let genCount = 1;
 ///////////////// Util Functions ///////////////////////
 function resetJimmy() {
   console.log("Jimmy has been wiped.")
-  window.localStorage.setItem("qTable", {})
+  //window.localStorage.setItem("qTable", {})
   window.localStorage.setItem("age", 0)
-  qlearner.qTable = {}
   restartGame()
 }
 
@@ -148,13 +147,6 @@ function restartGame() {
   snake = new Snake();
   apple = new Apple();
   if (!userInput) {
-    try {
-      qlearner.qTable = JSON.parse(window.localStorage.getItem("qTable"))
-      console.log(Object.keys(qlearner.qTable).length)
-    }
-    catch (e) {
-      console.log("Storage is empty.")
-    }
     qlearner.snake = snake;
     qlearner.apple = apple;
     let globalgencount = parseInt(window.localStorage.getItem("age"))
@@ -269,7 +261,7 @@ function setup() {
 
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
-  fr = userInput ? 15 : 5000;
+  fr = userInput ? 15 : 15;
   frameRate(fr);
   restartGame();
 }
@@ -299,8 +291,8 @@ function draw() {
       snake.move();
       let newState = qlearner.getCurrentState();
       reward = -5000;
-      qlearner.updateQTable(oldState, newState, reward, action);
-      window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
+      qlearner.updateBrain(oldState, newState, reward, action);
+      //window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
       restartGame();
       return;
     }
@@ -312,8 +304,8 @@ function draw() {
   // Train the snake
   if (!userInput) {
     let newState = qlearner.getCurrentState();
-    qlearner.updateQTable(oldState, newState, reward, action);
-    window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
+    qlearner.updateBrain(oldState, newState, reward, action);
+    //window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
   }
 }
 

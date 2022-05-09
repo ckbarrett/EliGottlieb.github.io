@@ -18,11 +18,11 @@ let actions = [up, down, left, right]
 */
 let qLearningRate = 0.85;
 let qDiscountFactor = 0.9;
-let randomize = 0.01;
+let randomize = 0.2;
 
 class QLearner {
     constructor() {
-        this.brain = new Network(12, 16, 16, 4);
+        this.brain = new Network(12, 32, 32, 4);
         this.qTable = {};
         this.snake = null;
         this.apple = null;
@@ -34,21 +34,21 @@ class QLearner {
         let xDir = this.snake.xDir[this.snake.xDir.length - 1];
         let yDir = this.snake.yDir[this.snake.yDir.length - 1];
         let directionStates = []
-        if(xDir != 0) {
-            if(xDir == 1) {
+        if (xDir != 0) {
+            if (xDir == 1) {
                 // Snake going right
-                directionStates = [0,0,0,1];
+                directionStates = [0, 0, 0, 1];
             } else {
                 // Snake going left
-                directionStates = [0,0,1,0];
+                directionStates = [0, 0, 1, 0];
             }
         } else {
-            if(yDir == 1) {
+            if (yDir == 1) {
                 // Snake going down
-                directionStates = [0,1,0,0];
+                directionStates = [0, 1, 0, 0];
             } else {
                 // Snake going up
-                directionStates = [1,0,0,0];
+                directionStates = [1, 0, 0, 0];
             }
         }
 
@@ -59,47 +59,47 @@ class QLearner {
         var foodRight = 0;
         var foodUp = 0;
         var foodDown = 0;
-        if(food.x < head.x) {
+        if (food.x < head.x) {
             foodLeft = 1;
-        } else if(food.x > head.x) {
+        } else if (food.x > head.x) {
             foodRight = 1;
         }
-        if(food.y < head.y) {
+        if (food.y < head.y) {
             foodUp = 1;
-        } else if(food.y > head.y){
+        } else if (food.y > head.y) {
             foodDown = 1;
         }
         let foodStates = [foodUp, foodDown, foodLeft, foodRight];
-        
+
         // Get danger to snake
         var dangerUp = 0;
         var dangerDown = 0;
         var dangerLeft = 0;
         var dangerRight = 0;
         // Check near walls
-        if(head.x == 0) dangerLeft = 1;
-        if(head.y == 0) dangerUp = 1;
-        if(onRightEdge()) dangerRight = 1;
-        if(onBottomEdge()) dangerDown = 1;
+        if (head.x == 0) dangerLeft = 1;
+        if (head.y == 0) dangerUp = 1;
+        if (onRightEdge()) dangerRight = 1;
+        if (onBottomEdge()) dangerDown = 1;
         // Check near itself
-        for(sq in this.snake.squares){
-            if(((head.x - squareWidth - xOffset) == sq.x) &&
+        for (sq in this.snake.squares) {
+            if (((head.x - squareWidth - xOffset) == sq.x) &&
                 head.y == sq.y) dangerLeft = 1;
-            else if(((head.x + squareWidth + xOffset) == sq.x) &&
+            else if (((head.x + squareWidth + xOffset) == sq.x) &&
                 head.y == sq.y) dangerRight = 1;
-            else if(((head.y + squareWidth + yOffset) == sq.y) &&
-                head.x == sq.x) dangerDown = 1;      
-            else if(((head.y - squareWidth - yOffset) == sq.y) &&
-                head.x == sq.x) dangerUp = 1;  
+            else if (((head.y + squareWidth + yOffset) == sq.y) &&
+                head.x == sq.x) dangerDown = 1;
+            else if (((head.y - squareWidth - yOffset) == sq.y) &&
+                head.x == sq.x) dangerUp = 1;
         }
         let dangerStates = [dangerUp, dangerDown, dangerLeft, dangerRight];
         return new State(dangerStates, directionStates, foodStates);
     }
-    
+
     whichTable(state) {
         let stateString = state.toString();
-        if(this.qTable[stateString] == undefined) {
-            this.qTable[stateString] = {'up':0,'down':0,'left':0,'right':0}
+        if (this.qTable[stateString] == undefined) {
+            this.qTable[stateString] = { 'up': 0, 'down': 0, 'left': 0, 'right': 0 }
         }
         return this.qTable[stateString];
     }
@@ -108,53 +108,78 @@ class QLearner {
         // Forbid the snake from turning around 
         let badActionIndex;
         let availableActions = []
-        if(state.directionStates[0] == 1){
+        if (state.directionStates[0] == 1) {
             badActionIndex = 1;
-        } else if(state.directionStates[1] == 1){
+        } else if (state.directionStates[1] == 1) {
             badActionIndex = 0;
-        } else if(state.directionStates[2] == 1){
+        } else if (state.directionStates[2] == 1) {
             badActionIndex = 3;
-        } else if(state.directionStates[3] == 1){
+        } else if (state.directionStates[3] == 1) {
             badActionIndex = 2;
         }
-        for(let i = 0; i < this.availableActions.length; i++){
-            if(i == badActionIndex) continue;
+        for (let i = 0; i < this.availableActions.length; i++) {
+            if (i == badActionIndex) continue;
             availableActions.push(this.availableActions[i]);
         }
         // End forbidding junky code
 
         // Choose a random direction sometimes
-        if(Math.random() < randomize) {
+        if (Math.random() < randomize) {
             let random = Math.floor(Math.random() * (availableActions.length + 1));
-            console.log("Random Move.")
             return availableActions[random];
         }
 
-        let q = this.whichTable(state.toString());
-        let maxValue = q[availableActions[0]];
-        let choseAction = availableActions[0];
-        let actionsZero = [];
-        for(let i = 0; i < availableActions.length; i++) {
-            if(q[availableActions[i]] == 0) actionsZero.push(availableActions[i]);
-            if(q[availableActions[i]] > maxValue) {
-                maxValue = q[availableActions[i]];
-                choseAction = availableActions[i];
+        //q becomes brain.predict() 
+        let outputs = this.brain.predict(state.toArary())
+        //console.log(outputs)
+        var m = outputs[0]
+        var index = 0;
+        for(let i = 1; i < outputs.length; i++) {
+            if(outputs[i] > m) {
+                index = i
+                m = outputs[i]
             }
         }
-
-        if(maxValue == 0){
-            let random = Math.floor(Math.random() * (actionsZero.length + 1));
-            choseAction = actionsZero[random];
-          }
-      
-        return choseAction;
+        //console.log(m)
+        if(index == 0) {
+            return "up"
+        }
+        if(index == 1) {
+            return "down"
+        }
+        if(index == 2) {
+            return "left"
+        }
+        return "right"
     }
-    updateQTable(state0, state1, reward, act) {
-        var q0 = this.whichTable(state0);
-        var q1 = this.whichTable(state1);
 
-        var newValue = reward + qDiscountFactor * Math.max(q1.up, q1.down, q1.left, q1.right) - q0[act];
-        this.qTable[state0][act] = q0[act] + qLearningRate * newValue;
+    updateBrain(state0, state1, reward, act) {
+        //console.log(max(this.brain.predict(state1.toArary())))
+        var newValue = reward + qDiscountFactor * max(this.brain.predict(state1.toArary())) - max(this.brain.predict(state0.toArary()));
+        //console.log("New value: " + newValue)
+        var newQ = (1 - qLearningRate) * max(this.brain.predict(state0.toArary())) + qLearningRate * newValue;
+        let outputs = this.brain.predict(state0.toArary())
+        if(act == "up") {
+            outputs[0] = newQ
+        } else if(act == "down"){
+            outputs[1] = newQ
+        } else if(act == "left"){
+            outputs[2] = newQ
+        } else {
+            outputs[3] = newQ
+        }
+        //console.log(outputs)
+        this.brain.train(state0.toArary(), outputs)
+    }
+
+    max (arr) {
+        let max = arr[0]
+        for(let i = 1; i < arr.length; i++) {
+            if(max < arr[i]) {
+                max = arr[i]
+            }
+        }
+        return max
     }
 }
 
@@ -164,15 +189,28 @@ class State {
         this.directionStates = directionStates;
         this.foodStates = foodStates;
     }
-    toString(){
+    toArary() {
+        let arr = []
+        for (let i = 0; i < this.dangerStates.length; i++) {
+            arr.push(this.dangerStates[i])
+        }
+        for (let i = 0; i < this.directionStates.length; i++) {
+            arr.push(this.directionStates[i])
+        }
+        for (let i = 0; i < this.foodStates.length; i++) {
+            arr.push(this.foodStates[i])
+        }
+        return arr
+    }
+    toString() {
         let state = ""
-        for(let i = 0; i < this.dangerStates.length; i++){
+        for (let i = 0; i < this.dangerStates.length; i++) {
             state += this.dangerStates[i] + ","
         }
-        for(let i = 0; i < this.directionStates.length; i++){
+        for (let i = 0; i < this.directionStates.length; i++) {
             state += this.directionStates[i] + ","
         }
-        for(let i = 0; i < this.foodStates.length; i++){
+        for (let i = 0; i < this.foodStates.length; i++) {
             state += this.foodStates[i] + ","
         }
         return state;
