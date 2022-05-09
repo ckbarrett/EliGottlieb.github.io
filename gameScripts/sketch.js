@@ -8,6 +8,7 @@ var gameOver = false;
 let inputUsed = false;
 let userInput = true;
 let score = 0;
+let highscore = 0;
 let genCount = 1;
 
 ///////////////// Util Functions ///////////////////////
@@ -109,6 +110,11 @@ function checkEatingApple() {
     drawSquare(apple.square, color(255, 0, 0));
     score++;
     document.getElementById("score-counter").innerText = score;
+    if (score > highscore)
+    {
+      highscore = score
+      document.getElementById("high-score").innerText = highscore;
+    }
   }
 }
 
@@ -187,14 +193,16 @@ let training_data = [{
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
   n = new Network(2, 8, 8, 1)
+  /*
   for (let i = 0; i < 150000; i++) {
     let data = random(training_data);
     n.train(data.inputs, data.outputs);
     trialmarkers.push(i)
   }
+  */
   //{x: trialmarkers, y: errors}, 
   //{x: trialmarkers, y: deltas}
-  Plotly.newPlot('myDiv', [{x: trialmarkers, y: errors}])
+  //Plotly.newPlot('myDiv', [{x: trialmarkers, y: errors}])
   console.log(n.predict([1, 0]));
   console.log(n.predict([0, 1]));
   console.log(n.predict([1, 1]));
