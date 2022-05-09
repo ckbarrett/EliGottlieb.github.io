@@ -138,7 +138,7 @@ function restartGame() {
   drawSnakeComplete();
   drawSquare(apple.square, color(255, 0, 0));
   gameOver = false;
-  if(!userInput) document.getElementById("generation-counter").innerText = "Generation: " + genCount;
+  if (!userInput) document.getElementById("generation-counter").innerText = "Generation: " + genCount;
 }
 
 function goUp() {
@@ -163,6 +163,9 @@ function goRight() {
 
 
 ///////////////// XOR Example ////////////////////////////////////////////////
+var errors = []
+var trialmarkers = []
+var deltas = []
 
 let training_data = [{
   inputs: [0, 0],
@@ -183,17 +186,19 @@ let training_data = [{
 
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
-  n = new Network(2, 2, 2, 1)
-  for (let i = 0; i < 1; i++) {
-    console.log("pog")
+  n = new Network(2, 8, 8, 1)
+  for (let i = 0; i < 150000; i++) {
     let data = random(training_data);
     n.train(data.inputs, data.outputs);
+    trialmarkers.push(i)
   }
-
-  console.log(n.predict([1,0]));
-  console.log(n.predict([0,1]));
-  console.log(n.predict([1,1]));
-  console.log(n.predict([0,0]));
+  //{x: trialmarkers, y: errors}, 
+  //{x: trialmarkers, y: deltas}
+  Plotly.newPlot('myDiv', [{x: trialmarkers, y: errors}])
+  console.log(n.predict([1, 0]));
+  console.log(n.predict([0, 1]));
+  console.log(n.predict([1, 1]));
+  console.log(n.predict([0, 0]));
 
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
