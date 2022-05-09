@@ -144,9 +144,9 @@ class Network {
 
             let previousLayer_T = Matrix.transpose(previousLayer);
             let weight_deltas = Matrix.multiply(currentLayer_gradients, previousLayer_T);
-            
+
             weights[gapIndex].add(weight_deltas);
-            biases[gapIndex] = biases[gapIndex].add(currentLayer_gradients);
+            biases[gapIndex].add(currentLayer_gradients);
 
             let currentWeights_T = Matrix.transpose(weights[gapIndex])
             errs = Matrix.multiply(currentWeights_T, errs)
