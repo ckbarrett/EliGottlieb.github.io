@@ -223,9 +223,9 @@ let training_data = [{
 let qlearner;
 
 function setup() {
-  n = new Network(2, 8, 8, 1)
+  n = new Network(2, 16, 16, 1)
   /*
-  for (let i = 0; i < 150000; i++) {
+  for (let i = 0; i < 2000; i++) {
     let data = random(training_data);
     n.train(data.inputs, data.outputs);
     trialmarkers.push(i)
