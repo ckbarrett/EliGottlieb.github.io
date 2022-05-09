@@ -250,21 +250,22 @@ function setup() {
     qlearner = new QLearner(snake, apple);
     document.getElementById("reset").onclick = resetJimmy
   }
-  n = new Network(2, 16, 16, 1)
   /*
+  n = new Network(2, 16, 16, 1)
   for (let i = 0; i < 2000; i++) {
     let data = random(training_data);
     n.train(data.inputs, data.outputs);
     trialmarkers.push(i)
   }
-  */
+  
   //{x: trialmarkers, y: errors}, 
   //{x: trialmarkers, y: deltas}
-  //Plotly.newPlot('myDiv', [{x: trialmarkers, y: errors}])
+  Plotly.newPlot('myDiv', [{x: trialmarkers, y: errors}])
   console.log(n.predict([1, 0]));
   console.log(n.predict([0, 1]));
   console.log(n.predict([1, 1]));
   console.log(n.predict([0, 0]));
+  */
 
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
@@ -310,7 +311,6 @@ function draw() {
   inputUsed = false;
   // Train the snake
   if (!userInput) {
-    console.log("Moved.")
     let newState = qlearner.getCurrentState();
     qlearner.updateQTable(oldState, newState, reward, action);
     window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))

@@ -22,14 +22,11 @@ let randomize = 0.01;
 
 class QLearner {
     constructor() {
+        this.brain = new Network(12, 16, 16, 4);
         this.qTable = {};
         this.snake = null;
         this.apple = null;
         this.availableActions = ['up', 'down', 'left', 'right'];
-    }
-
-    qlength() {
-        return Object.keys(this.qTable).length;
     }
 
     getCurrentState() {
@@ -98,6 +95,7 @@ class QLearner {
         let dangerStates = [dangerUp, dangerDown, dangerLeft, dangerRight];
         return new State(dangerStates, directionStates, foodStates);
     }
+    
     whichTable(state) {
         let stateString = state.toString();
         if(this.qTable[stateString] == undefined) {
@@ -128,6 +126,7 @@ class QLearner {
         // Choose a random direction sometimes
         if(Math.random() < randomize) {
             let random = Math.floor(Math.random() * (availableActions.length + 1));
+            console.log("Random Move.")
             return availableActions[random];
         }
 
