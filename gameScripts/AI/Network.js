@@ -19,7 +19,7 @@ class Network {
         this.bias_h2.randomize();
         this.bias_output.randomize();
 
-        this.learningrate = 0.1;
+        this.learningrate = 0.5;
     }
 
     predict(input_array) {

@@ -143,12 +143,23 @@ function restartGame() {
   apple = new Apple();
   qlearner.apple = apple;
   score = 0;
+  try {
+    qlearner.qTable = JSON.parse(window.localStorage.getItem("qTable"))
+  }
+  catch (e)
+  {
+    console.log("Storage is empty.")
+  }
+  
   document.getElementById("score-counter").innerText = score;
   background(255);
   drawSnakeComplete();
   drawSquare(apple.square, color(255, 0, 0));
   gameOver = false;
-  if (!userInput) document.getElementById("generation-counter").innerText = "Generation: " + genCount;
+  let globalgencount = parseInt(window.localStorage.getItem("age"))
+  globalgencount++;
+  window.localStorage.setItem("age", globalgencount)
+  if (!userInput) document.getElementById("generation-counter").innerText = "Jimmy's: " + globalgencount;
 }
 
 function goUp() {
@@ -224,6 +235,8 @@ let qlearner;
 
 function setup() {
   n = new Network(2, 16, 16, 1)
+  //window.localStorage.setItem("qTable", {})
+  //window.localStorage.setItem("age", 0)
   /*
   for (let i = 0; i < 2000; i++) {
     let data = random(training_data);
@@ -255,12 +268,11 @@ function draw() {
     oldState = qlearner.getCurrentState();
     action = qlearner.bestAction(oldState);
     doAction(action);
-    document.getElementById("generation-counter").innerText = " - Jimmy's: " + genCount;
   }
   // Check if eating apple
   let reward = 0;
   if(checkEatingApple()){
-    reward = 50;
+    reward = 500;
   } else {
     reward = 0;
   }
@@ -271,6 +283,8 @@ function draw() {
       drawPlayAgainButton();
       return;
     } else {
+      console.log(Object.keys(qlearner.qTable).length)
+      window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
       genCount++;
       snake.move();
       let newState = qlearner.getCurrentState();

@@ -27,6 +27,11 @@ class QLearner {
         this.apple = null;
         this.availableActions = ['up', 'down', 'left', 'right'];
     }
+
+    qlength() {
+        return Object.keys(this.qTable).length;
+    }
+    
     getCurrentState() {
         // Get direction of snake
         
