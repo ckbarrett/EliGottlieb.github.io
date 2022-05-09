@@ -6,7 +6,7 @@ let snake;
 let apple;
 var gameOver = false;
 let inputUsed = false;
-let userInput = true;
+let userInput = false;
 let score = 0;
 let highscore = 0;
 let genCount = 1;
@@ -110,12 +110,12 @@ function checkEatingApple() {
     drawSquare(apple.square, color(255, 0, 0));
     score++;
     document.getElementById("score-counter").innerText = score;
-    return true;
     if (score > highscore)
     {
       highscore = score
       document.getElementById("high-score").innerText = highscore;
     }
+    return true;
   }
   return false;
 }
@@ -139,7 +139,9 @@ function snakeContains(x, y) {
 
 function restartGame() {
   snake = new Snake();
+  qlearner.snake = snake;
   apple = new Apple();
+  qlearner.apple = apple;
   score = 0;
   document.getElementById("score-counter").innerText = score;
   background(255);
@@ -239,10 +241,10 @@ function setup() {
 
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
-  fr = userInput ? 15 : 30;
+  fr = userInput ? 15 : 1000;
   frameRate(fr);
-  restartGame();
   qlearner = new QLearner(snake, apple);
+  restartGame();
 }
 
 function draw() {
@@ -255,6 +257,13 @@ function draw() {
     doAction(action);
     document.getElementById("generation-counter").innerText = " - Generation: " + genCount;
   }
+  // Check if eating apple
+  let reward = 0;
+  if(checkEatingApple()){
+    reward = 50;
+  } else {
+    reward = 0;
+  }
   // Check for collisions and end game
   checkCollisions();
   if (gameOver) {
@@ -263,21 +272,15 @@ function draw() {
       return;
     } else {
       genCount++;
-
-
-
+      snake.move();
+      let newState = qlearner.getCurrentState();
+      reward = -1000;
+      qlearner.updateQTable(oldState, newState, reward, action);
       restartGame();
       return;
     }
   }
-
-  // Update the game 
-  let reward = 0;
-  if(checkEatingApple()){
-    reward = 10;
-  } else {
-    reward = 0;
-  }
+  // Update the game
   snake.move();
   drawSnake();
   inputUsed = false;
@@ -286,7 +289,6 @@ function draw() {
     let newState = qlearner.getCurrentState();
     qlearner.updateQTable(oldState, newState, reward, action);
   }
-
 }
 
 function windowResized() {

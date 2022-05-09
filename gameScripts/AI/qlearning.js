@@ -21,14 +21,15 @@ let qDiscountFactor = 0.9;
 let randomize = 0.05;
 
 class QLearner {
-    constructor(snake, apple) {
+    constructor() {
         this.qTable = {};
-        this.snake = snake;
-        this.apple = apple;
+        this.snake = null;
+        this.apple = null;
         this.availableActions = ['up', 'down', 'left', 'right'];
     }
     getCurrentState() {
         // Get direction of snake
+        
         let xDir = this.snake.xDir[this.snake.xDir.length - 1];
         let yDir = this.snake.yDir[this.snake.yDir.length - 1];
         let directionStates = []
@@ -91,7 +92,6 @@ class QLearner {
                 head.x == sq.x) dangerUp = 1;  
         }
         let dangerStates = [dangerUp, dangerDown, dangerLeft, dangerRight];
-        
         return new State(dangerStates, directionStates, foodStates);
     }
     whichTable(state) {
@@ -120,13 +120,14 @@ class QLearner {
             availableActions.push(this.availableActions[i]);
         }
         // End forbidding junky code
-        
-        let q = this.whichTable(state.toString());
+
+        // Choose a random direction sometimes
         if(Math.random() < randomize) {
-            let random = Math.floor(Math.random() * availableActions.length);
+            let random = Math.floor(Math.random() * (availableActions.length + 1));
             return availableActions[random];
         }
 
+        let q = this.whichTable(state.toString());
         let maxValue = q[availableActions[0]];
         let choseAction = availableActions[0];
         let actionsZero = [];
@@ -139,7 +140,7 @@ class QLearner {
         }
 
         if(maxValue == 0){
-            let random = Math.floor(Math.random() * actionsZero.length);
+            let random = Math.floor(Math.random() * (actionsZero.length + 1));
             choseAction = actionsZero[random];
           }
       
