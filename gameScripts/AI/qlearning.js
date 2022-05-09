@@ -23,10 +23,11 @@ let randomize = 0.2;
 class QLearner {
     constructor() {
         this.brain = new Network(12, 32, 32, 4);
-        this.qTable = {};
         this.snake = null;
         this.apple = null;
         this.availableActions = ['up', 'down', 'left', 'right'];
+        this.d = {}
+        this.states = {}
     }
 
     getCurrentState() {
@@ -96,14 +97,6 @@ class QLearner {
         return new State(dangerStates, directionStates, foodStates);
     }
 
-    whichTable(state) {
-        let stateString = state.toString();
-        if (this.qTable[stateString] == undefined) {
-            this.qTable[stateString] = { 'up': 0, 'down': 0, 'left': 0, 'right': 0 }
-        }
-        return this.qTable[stateString];
-    }
-
     bestAction(state) {
         // Forbid the snake from turning around 
         let badActionIndex;
@@ -154,15 +147,16 @@ class QLearner {
     }
 
     updateBrain(state0, state1, reward, act, done) {
-        //console.log(max(this.brain.predict(state1.toArary())))
         let newValue;
         if(done){
             newValue = reward;
         } else {
             newValue = reward + qDiscountFactor * max(this.brain.predict(state1.toArary())) - max(this.brain.predict(state0.toArary()));
         }
-        //console.log("New value: " + newValue)
         let newQ = (1 - qLearningRate) * max(this.brain.predict(state0.toArary())) + qLearningRate * newValue;
+        this.updateD(state0, newQ, act)
+
+        /*
         let outputs = this.brain.predict(state0.toArary())
         if(act == "up") {
             outputs[0] = newQ
@@ -175,6 +169,38 @@ class QLearner {
         }
         //console.log(outputs)
         this.brain.train(state0.toArary(), outputs)
+        */
+    }
+
+    updateD (state, newQ, act) {
+        let stateString = state.toString()
+        this.states.stateString = state
+        let index = 0;
+        if(act == "down") {
+            index = 1
+        } else if(act == "left") {
+            index = 2
+        } else {
+            index = 3
+        }
+        let entry = this.d.stateString
+        if (entry != null) {
+            entry[index] = (entry[index] + newQ) / 2.0
+            this.d.stateString = entry
+        }
+        else {
+            entry = [0, 0, 0, 0]
+            entry[index] = newQ
+            this.d.stateString = entry
+        }
+        if (Object.keys(this.d).length > 20) {
+            for (let i = 0; i < Object.keys(this.d).length; i++) {
+                let tempstate = states.Object.keys(this.d)[i]
+                let qvals = d.Object.keys(this.d)[i]
+                train(tempstate, qvals)
+              }
+            this.d = {}
+        }
     }
 
     max (arr) {

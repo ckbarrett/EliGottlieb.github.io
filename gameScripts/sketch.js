@@ -261,7 +261,7 @@ function setup() {
 
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
-  fr = userInput ? 15 : 15;
+  fr = userInput ? 15 : 5000;
   frameRate(fr);
   restartGame();
 }
