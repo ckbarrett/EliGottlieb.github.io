@@ -255,7 +255,7 @@ function draw() {
     oldState = qlearner.getCurrentState();
     action = qlearner.bestAction(oldState);
     doAction(action);
-    document.getElementById("generation-counter").innerText = " - Generation: " + genCount;
+    document.getElementById("generation-counter").innerText = " - Jimmy's: " + genCount;
   }
   // Check if eating apple
   let reward = 0;
