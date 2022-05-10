@@ -129,8 +129,7 @@ class Network {
         // Calculater error matrix as targets - outputs
         
         var errs = Matrix.subtract(targets, outputs)
-
-        console.log(errs.data)
+        //console.log(errs.data)
         let layers = [inputs, hidden1, hidden2, outputs]
         let weights = [this.weights_input_h1, this.weights_h1_h2, this.weights_h2_output]
         let biases = [this.bias_h1, this.bias_h2, this.bias_output]

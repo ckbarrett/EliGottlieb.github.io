@@ -18,16 +18,16 @@ let actions = [up, down, left, right]
 */
 let qLearningRate = 0.85;
 let qDiscountFactor = 0.9;
-let randomize = 0.2;
 
 class QLearner {
     constructor() {
-        this.brain = new Network(12, 32, 32, 4);
+        this.brain = new Network(12, 16, 16, 4);
         this.snake = null;
         this.apple = null;
         this.availableActions = ['up', 'down', 'left', 'right'];
         this.d = {}
         this.states = {}
+        this.randomize = 1;
     }
 
     getCurrentState() {
@@ -54,8 +54,8 @@ class QLearner {
         }
 
         // Get position of fruit relative to head
-        let head = this.snake.head;
-        let food = this.apple.square;
+        var head = this.snake.head;
+        var food = this.apple.square;
         var foodLeft = 0;
         var foodRight = 0;
         var foodUp = 0;
@@ -83,15 +83,21 @@ class QLearner {
         if (onRightEdge()) dangerRight = 1;
         if (onBottomEdge()) dangerDown = 1;
         // Check near itself
-        for (sq in this.snake.squares) {
-            if (((head.x - squareWidth - xOffset) == sq.x) &&
-                head.y == sq.y) dangerLeft = 1;
-            else if (((head.x + squareWidth + xOffset) == sq.x) &&
-                head.y == sq.y) dangerRight = 1;
-            else if (((head.y + squareWidth + yOffset) == sq.y) &&
-                head.x == sq.x) dangerDown = 1;
-            else if (((head.y - squareWidth - yOffset) == sq.y) &&
-                head.x == sq.x) dangerUp = 1;
+        for (let index in this.snake.squares) {
+            let squ = this.snake.squares[index]
+            if (((head.x - squareWidth - xOffset) == squ.x) && (head.y == squ.y)) {
+                dangerLeft = 1;
+            }
+            if (((head.x + squareWidth + xOffset) == squ.x) && (head.y == squ.y)) {
+                dangerRight = 1;
+            }
+            if (((head.y + squareWidth + yOffset) == squ.y) && (head.x == squ.x)) {
+                dangerDown = 1;
+            }
+            if (((head.y - squareWidth - yOffset) == squ.y) && (head.x == squ.x)) {
+                dangerUp = 1;
+            }
+
         }
         let dangerStates = [dangerUp, dangerDown, dangerLeft, dangerRight];
         return new State(dangerStates, directionStates, foodStates);
@@ -117,30 +123,29 @@ class QLearner {
         // End forbidding junky code
 
         // Choose a random direction sometimes
-        if (Math.random() < randomize) {
+        if (Math.random() < this.randomize) {
             let random = Math.floor(Math.random() * (availableActions.length + 1));
             return availableActions[random];
         }
 
         //q becomes brain.predict() 
-        let outputs = this.brain.predict(state.toArary())
-        //console.log(outputs)
+        let outputs = this.brain.predict(state.toArray())
+
         var m = outputs[0]
         var index = 0;
-        for(let i = 1; i < outputs.length; i++) {
-            if(outputs[i] > m) {
+        for (let i = 1; i < outputs.length; i++) {
+            if (outputs[i] > m) {
                 index = i
                 m = outputs[i]
             }
         }
-        //console.log(m)
-        if(index == 0) {
+        if (index == 0) {
             return "up"
         }
-        if(index == 1) {
+        if (index == 1) {
             return "down"
         }
-        if(index == 2) {
+        if (index == 2) {
             return "left"
         }
         return "right"
@@ -148,12 +153,12 @@ class QLearner {
 
     updateBrain(state0, state1, reward, act, done) {
         let newValue;
-        if(done){
+        if (done) {
             newValue = reward;
         } else {
-            newValue = reward + qDiscountFactor * max(this.brain.predict(state1.toArary())) - max(this.brain.predict(state0.toArary()));
+            newValue = reward + qDiscountFactor * max(this.brain.predict(state1.toArray())) - max(this.brain.predict(state0.toArray()));
         }
-        let newQ = (1 - qLearningRate) * max(this.brain.predict(state0.toArary())) + qLearningRate * newValue;
+        let newQ = (1 - qLearningRate) * max(this.brain.predict(state0.toArray())) + qLearningRate * newValue;
         this.updateD(state0, newQ, act)
 
         /*
@@ -172,41 +177,49 @@ class QLearner {
         */
     }
 
-    updateD (state, newQ, act) {
+    updateD(state, newQ, act) {
         let stateString = state.toString()
-        this.states.stateString = state
+        this.states[stateString] = state
         let index = 0;
-        if(act == "down") {
+        if (act == "up") {
+            index = 0;
+        } else if (act == "down") {
             index = 1
-        } else if(act == "left") {
+        } else if (act == "left") {
             index = 2
         } else {
             index = 3
         }
-        let entry = this.d.stateString
+        let entry = this.d[stateString]
         if (entry != null) {
             entry[index] = (entry[index] + newQ) / 2.0
-            this.d.stateString = entry
+            this.d[stateString] = entry
         }
         else {
-            entry = [0, 0, 0, 0]
+            entry = [0,0,0,0]
             entry[index] = newQ
-            this.d.stateString = entry
+            this.d[stateString] = entry
         }
-        if (Object.keys(this.d).length > 20) {
+        console.log(Object.keys(this.d).length)
+        if (Object.keys(this.d).length > 69) {
             for (let i = 0; i < Object.keys(this.d).length; i++) {
-                let tempstate = states.Object.keys(this.d)[i]
-                let qvals = d.Object.keys(this.d)[i]
-                train(tempstate, qvals)
-              }
+                let tempkey = Object.keys(this.d)[i]
+                let tempstate = this.states[tempkey].toArray()
+                let qvals = this.d[tempkey]
+                console.log(tempstate)
+                console.log(qvals)
+                this.brain.train(tempstate, qvals)
+            }
+            console.log("Training")
             this.d = {}
+            this.randomize -= 0.1
         }
     }
 
-    max (arr) {
+    max(arr) {
         let max = arr[0]
-        for(let i = 1; i < arr.length; i++) {
-            if(max < arr[i]) {
+        for (let i = 1; i < arr.length; i++) {
+            if (max < arr[i]) {
                 max = arr[i]
             }
         }
@@ -220,7 +233,7 @@ class State {
         this.directionStates = directionStates;
         this.foodStates = foodStates;
     }
-    toArary() {
+    toArray() {
         let arr = []
         for (let i = 0; i < this.dangerStates.length; i++) {
             arr.push(this.dangerStates[i])

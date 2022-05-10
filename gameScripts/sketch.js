@@ -10,12 +10,14 @@ let userInput = false;
 var score = 0;
 let highscore = 0;
 let genCount = 1;
+let randomize_slider;
 
 ///////////////// Util Functions ///////////////////////
 function resetJimmy() {
   console.log("Jimmy has been wiped.")
   //window.localStorage.setItem("qTable", {})
   window.localStorage.setItem("age", 0)
+  qlearner.brain = new Network(12, 16, 16, 4);
   restartGame()
 }
 
@@ -235,6 +237,7 @@ let training_data = [{
 let qlearner;
 
 function setup() {
+  randomize_slider = createSlider(0, 1, 1, .1)
   if (userInput) {
     document.getElementById("reset").style.visibility = "hidden"
   }
@@ -268,6 +271,7 @@ function setup() {
 
 function draw() {
   // Get snake move
+  qlearner.randomize = randomize_slider.value()
   let oldState = null;
   let action = null;
   if (!userInput) {
@@ -276,9 +280,9 @@ function draw() {
     doAction(action);
   }
   // Check if eating apple
-  let reward = 0;
+  let reward = 1;
   if (checkEatingApple()) {
-    reward = 5000;
+    reward = 10;
   }
   // Check for collisions and end game
   checkCollisions();
@@ -290,7 +294,7 @@ function draw() {
       genCount++;
       snake.move();
       let newState = qlearner.getCurrentState();
-      reward = -5000;
+      reward = -100;
       qlearner.updateBrain(oldState, newState, reward, action, true);
       //window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
       restartGame();
