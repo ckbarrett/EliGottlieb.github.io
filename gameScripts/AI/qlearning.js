@@ -83,8 +83,8 @@ class QLearner {
         if (onRightEdge()) dangerRight = 1;
         if (onBottomEdge()) dangerDown = 1;
         // Check near itself
-        for (let index in this.snake.squares) {
-            let squ = this.snake.squares[index]
+        for (let i = 0; i < this.snake.squares.length; i++) {
+            let squ = this.snake.squares[i]
             if (((head.x - squareWidth - xOffset) == squ.x) && (head.y == squ.y)) {
                 dangerLeft = 1;
             }
@@ -130,7 +130,8 @@ class QLearner {
 
         //q becomes brain.predict() 
         let outputs = this.brain.predict(state.toArray())
-
+        console.log("Prediction: ");
+        console.log(outputs);
         var m = outputs[0]
         var index = 0;
         for (let i = 1; i < outputs.length; i++) {
@@ -201,7 +202,7 @@ class QLearner {
             this.d[stateString] = entry
         }
         console.log(Object.keys(this.d).length)
-        if (Object.keys(this.d).length > 69) {
+        if (Object.keys(this.d).length > 1) {
             for (let i = 0; i < Object.keys(this.d).length; i++) {
                 let tempkey = Object.keys(this.d)[i]
                 let tempstate = this.states[tempkey].toArray()
