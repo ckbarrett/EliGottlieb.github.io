@@ -14,6 +14,16 @@ class Snake {
       this.yDir = [0, 0, 0];
       this.count = 0;
     } 
+    copy(snake) {
+      this.squares = snake.squares
+      this.head = snake.head
+      this.oldTail = snake.oldTail;
+      this.oldTailxDir = snake.oldTailxDir;
+      this.oldTailyDir = snake.oldTailyDir;
+      this.xDir = snake.xDir;
+      this.yDir = snake.yDir;
+      this.count = snake.count;
+    } 
     move() {
       // Update old tail
       // Make a deep copy

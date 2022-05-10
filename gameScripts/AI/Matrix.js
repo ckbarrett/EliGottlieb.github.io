@@ -43,7 +43,7 @@ class Matrix {
     }
 
     randomize() {
-        return this.map(e => Math.random() * 2 - 1);
+        return this.map(e => Math.random()* 2 - 1);
     }
 
     add(n) {

@@ -1,6 +1,8 @@
+//One snake that is visable and moving
+//One snake to test everything the snake doesnt do?
 let squareWidth = 30;
-let xOffset = 5;
-let yOffset = 5;
+let xOffset = 50;
+let yOffset = 50;
 let fr;
 let snake;
 let apple;
@@ -11,14 +13,29 @@ var score = 0;
 let highscore = 0;
 let genCount = 1;
 let randomize_slider;
+var uperrors = []
+var downerrors = []
+var lefterrors = []
+var righterrors = []
+var m = 0
+var appleReward = 1
+var deathReward = -1
 
 ///////////////// Util Functions ///////////////////////
 function resetJimmy() {
   console.log("Jimmy has been wiped.")
   //window.localStorage.setItem("qTable", {})
   window.localStorage.setItem("age", 0)
-  qlearner.brain = new Network(12, 16, 16, 4);
+  qlearner.brain = new Network(12, 32, 32, 4);
   restartGame()
+}
+
+function graph() {
+  for (let i = 0; i < downerrors.length; i++) {
+    trialmarkers.push(i)
+  }
+  //Plotly.newPlot('myDiv', [{x: trialmarkers, y: uperrors}, {x: trialmarkers, y: downerrors}, {x: trialmarkers, y: lefterrors}, {x: trialmarkers, y: righterrors}])
+  Plotly.newPlot('myDiv', [{ x: trialmarkers, y: uperrors }, { x: trialmarkers, y: downerrors }, { x: trialmarkers, y: lefterrors }])
 }
 
 function drawSquare(square, clr) {
@@ -87,20 +104,20 @@ function drawPlayAgainButton() {
   text('Play Again', playAgainx + 25, playAgainy + 35);
 }
 
-function checkCollisions() {
+function checkCollisions(sn) {
   let xtile = (squareWidth + xOffset);
   let ytile = (squareWidth + yOffset);
   // Define collisions
-  let hitRightWall = (snake.head.x + squareWidth + xtile > width) &&
-    (snake.xDir[snake.xDir.length - 1] == 1);
-  let hitLeftWall = (snake.head.x - xtile < 0) && (snake.xDir[snake.xDir.length - 1] == -1);
-  let hitBottomWall = (snake.head.y + squareWidth + ytile > height) &&
-    (snake.yDir[snake.yDir.length - 1] == 1);
-  let hitTopWall = (snake.head.y - ytile < 0) && (snake.yDir[snake.yDir.length - 1] == -1);
+  let hitRightWall = (sn.head.x + squareWidth + xtile > width) &&
+    (sn.xDir[sn.xDir.length - 1] == 1);
+  let hitLeftWall = (sn.head.x - xtile < 0) && (sn.xDir[sn.xDir.length - 1] == -1);
+  let hitBottomWall = (sn.head.y + squareWidth + ytile > height) &&
+    (sn.yDir[sn.yDir.length - 1] == 1);
+  let hitTopWall = (sn.head.y - ytile < 0) && (sn.yDir[sn.yDir.length - 1] == -1);
   let hittingSelf = false;
-  for (let i = 0; i < snake.squares.length - 1; i++) {
-    let tempsq = snake.squares[i];
-    if ((tempsq.x == snake.head.x) && (tempsq.y == snake.head.y)) {
+  for (let i = 0; i < sn.squares.length - 1; i++) {
+    let tempsq = sn.squares[i];
+    if ((tempsq.x == sn.head.x) && (tempsq.y == sn.head.y)) {
       hittingSelf = true;
       break;
     }
@@ -110,11 +127,14 @@ function checkCollisions() {
   }
 }
 
-function checkEatingApple() {
-  if ((snake.head.x == apple.square.x) && (snake.head.y == apple.square.y)) {
-    snake.squares.unshift(new Square(snake.oldTail.x, snake.oldTail.y, squareWidth))
-    snake.xDir.unshift(snake.oldTailxDir);
-    snake.yDir.unshift(snake.oldTailyDir);
+
+
+
+function checkEatingApple(sn) {
+  if ((sn.head.x == apple.square.x) && (sn.head.y == apple.square.y)) {
+    sn.squares.unshift(new Square(sn.oldTail.x, sn.oldTail.y, squareWidth))
+    sn.xDir.unshift(sn.oldTailxDir);
+    sn.yDir.unshift(sn.oldTailyDir);
     apple.square = apple.getRandomSquare();
     drawSquare(apple.square, color(255, 0, 0));
     score++;
@@ -146,6 +166,8 @@ function snakeContains(x, y) {
 }
 
 function restartGame() {
+  uperrors.push(m)
+  m = 0
   snake = new Snake();
   apple = new Apple();
   if (!userInput) {
@@ -165,35 +187,35 @@ function restartGame() {
 
 }
 
-function goUp() {
-  snake.xDir[snake.xDir.length - 1] = 0;
-  snake.yDir[snake.yDir.length - 1] = -1;
+function goUp(sn) {
+  sn.xDir[snake.xDir.length - 1] = 0;
+  sn.yDir[snake.yDir.length - 1] = -1;
 }
-function goDown() {
-  snake.xDir[snake.xDir.length - 1] = 0;
-  snake.yDir[snake.yDir.length - 1] = 1;
+function goDown(sn) {
+  sn.xDir[sn.xDir.length - 1] = 0;
+  sn.yDir[sn.yDir.length - 1] = 1;
 }
-function goLeft() {
-  snake.xDir[snake.xDir.length - 1] = -1;
-  snake.yDir[snake.yDir.length - 1] = 0;
+function goLeft(sn) {
+  sn.xDir[sn.xDir.length - 1] = -1;
+  sn.yDir[sn.yDir.length - 1] = 0;
 }
-function goRight() {
-  snake.xDir[snake.xDir.length - 1] = 1;
-  snake.yDir[snake.yDir.length - 1] = 0;
+function goRight(sn) {
+  sn.xDir[sn.xDir.length - 1] = 1;
+  sn.yDir[sn.yDir.length - 1] = 0;
 }
-function doAction(action) {
+function doAction(action, sn) {
   switch (action) {
     case 'up':
-      goUp();
+      goUp(sn);
       break;
     case 'down':
-      goDown();
+      goDown(sn);
       break;
     case 'left':
-      goLeft();
+      goLeft(sn);
       break;
     case 'right':
-      goRight();
+      goRight(sn);
       break;
   }
 }
@@ -237,17 +259,20 @@ let training_data = [{
 let qlearner;
 
 function setup() {
-  randomize_slider = createSlider(0, 1, 1, .1)
+  window.localStorage.setItem("age", 0)
+  randomize_slider = createSlider(0, 1, 0, .1)
   if (userInput) {
     document.getElementById("reset").style.visibility = "hidden"
+    document.getElementById("graph").style.visibility = "hidden"
   }
   else {
     qlearner = new QLearner(snake, apple);
     document.getElementById("reset").onclick = resetJimmy
+    document.getElementById("graph").onclick = graph
   }
   /*
-  n = new Network(2, 16, 16, 1)
-  for (let i = 0; i < 2000; i++) {
+  n = new Network(2, 32, 32, 1)
+  for (let i = 0; i < 1000; i++) {
     let data = random(training_data);
     n.train(data.inputs, data.outputs);
     trialmarkers.push(i)
@@ -264,28 +289,46 @@ function setup() {
 
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
-  fr = userInput ? 15 : 1;
+  fr = userInput ? 10 : 50;
   frameRate(fr);
   restartGame();
 }
 
 function draw() {
   // Get snake move
-  qlearner.randomize = randomize_slider.value()
+  m++;
   let oldState = null;
-  let action = null;
+  let newstates = []
+  let bestaction = null;
+  let savedsnake = new Snake();
+  let reward = 0;
+  savedsnake.copy(snake)
   if (!userInput) {
+    qlearner.randomize = randomize_slider.value()
     oldState = qlearner.getCurrentState();
-    action = qlearner.bestAction(oldState);
-    doAction(action);
+    actionList = ["up", "down", "left", "right"]
+    rewardList = [0, 0, 0, 0]
+    
+    for (let i = 0; i < actionList.length; i++) {
+      savedsnake.copy(snake)
+      doAction(actionList[i], savedsnake)
+      newstates[i] = savedsnake.getCurrentState
+      if(checkEatingApple(savedsnake)) reward[i] = appleReward
+      checkCollisions(savedsnake)
+      if(gameOver) reward[i] = deathReward
+      gameOver = false
+      qlearner.currentState = oldState
+    }
+    bestaction = qlearner.bestAction(oldState);
+    doAction(bestaction, snake);
   }
   // Check if eating apple
-  let reward = 1;
-  if (checkEatingApple()) {
-    reward = 10;
+  reward = 0;
+  if (checkEatingApple(snake)) {
+    reward = appleReward;
   }
   // Check for collisions and end game
-  checkCollisions();
+  checkCollisions(snake);
   if (gameOver) {
     if (userInput) {
       drawPlayAgainButton();
@@ -294,9 +337,8 @@ function draw() {
       genCount++;
       snake.move();
       let newState = qlearner.getCurrentState();
-      reward = -100;
-      qlearner.updateBrain(oldState, newState, reward, action, true);
-      //window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
+      reward = deathReward;
+      qlearner.updateBrain(oldState, newState, reward, bestaction, true);
       restartGame();
       return;
     }
@@ -308,8 +350,7 @@ function draw() {
   // Train the snake
   if (!userInput) {
     let newState = qlearner.getCurrentState();
-    qlearner.updateBrain(oldState, newState, reward, action, false);
-    //window.localStorage.setItem("qTable", JSON.stringify(qlearner.qTable))
+    qlearner.updateBrain(oldState, newState, reward, bestaction, false);
   }
 }
 
@@ -327,22 +368,22 @@ function keyPressed() {
   switch (keyCode) {
     case UP_ARROW:
       if ((snake.yDir[snake.yDir.length - 1] != 0) || inputUsed) break;
-      goUp();
+      goUp(snake);
       inputUsed = true;
       break;
     case DOWN_ARROW:
       if ((snake.yDir[snake.yDir.length - 1] != 0) || inputUsed) break;
-      goDown();
+      goDown(snake);
       inputUsed = true;
       break;
     case LEFT_ARROW:
       if ((snake.xDir[snake.xDir.length - 1] != 0) || inputUsed) break;
-      goLeft();
+      goLeft(snake);
       inputUsed = true;
       break;
     case RIGHT_ARROW:
       if ((snake.xDir[snake.xDir.length - 1] != 0) || inputUsed) break;
-      goRight();
+      goRight(snake);
       inputUsed = true;
       break;
   }

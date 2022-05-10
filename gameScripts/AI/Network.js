@@ -19,7 +19,7 @@ class Network {
         this.bias_h2.randomize();
         this.bias_output.randomize();
 
-        this.learningrate = 0.5;
+        this.learningrate = 0.1;
     }
 
     predict(input_array) {
@@ -70,10 +70,15 @@ class Network {
         // Map sigmoid on output activation
         outputs.map(sigmoid)
 
-        /*
+      
         // Calculate initial error
         let output_errors = Matrix.subtract(targets, outputs)
         errors.push(output_errors.data[0][0])
+        
+        //uperrors.push(inputs.data[0][0])
+        downerrors.push(this.weights_h1_h2.data[1][0])
+        lefterrors.push(this.weights_h2_output.data[2][0])
+        //righterrors.push(outputs.data[3][0])
 
         // Calculate output gradients
         let gradients_h2_o = Matrix.map(outputs, dligmoid)
@@ -113,21 +118,31 @@ class Network {
         let hidden1_errors = Matrix.multiply(weights_h1_h2_T, hidden2_errors)
 
         // Calculate hidden1 gradients
+        console.log("Hidden Layer 1")
+        console.log(hidden1)
+        console.log("Weights between input and h1")
+        console.log(this.weights_input_h1)
         let graidents_input_h1 = Matrix.map(hidden1, dligmoid)
         graidents_input_h1.multiply(hidden1_errors)
         graidents_input_h1.multiply(this.learningrate)
 
         // Calculate deltas
         let input_T = Matrix.transpose(inputs)
+        console.log("Gradients between input and h1")
+        console.log(graidents_input_h1.data)
+        console.log("Input transposed")
+        console.log(input_T.data)
         let weights_input_h1_deltas = Matrix.multiply(graidents_input_h1, input_T)
+        console.log("Deltas between input and h1")
+        console.log(weights_input_h1_deltas.data)
 
         // Adjust weights by deltas
         this.weights_input_h1.add(weights_input_h1_deltas)
         // Adjust biases by deltas
         this.bias_h1.add(graidents_input_h1)
-        */
-        // Calculater error matrix as targets - outputs
         
+        // Calculater error matrix as targets - outputs
+        /*
         var errs = Matrix.subtract(targets, outputs)
         console.log("Errors: ")
         console.log(errs.data)
@@ -161,6 +176,6 @@ class Network {
         this.bias_h1 = biases[0];
         this.bias_h2 = biases[1];
         this.bias_output = biases[2]
-
+*/
     }
 }

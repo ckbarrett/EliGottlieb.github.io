@@ -20,14 +20,16 @@ let qLearningRate = 0.85;
 let qDiscountFactor = 0.9;
 
 class QLearner {
-    constructor() {
-        this.brain = new Network(12, 16, 16, 4);
-        this.snake = null;
-        this.apple = null;
+    constructor(snake, apple) {
+        this.brain = new Network(12, 32, 32, 4);
+        this.snake = snake;
+        this.apple = apple;
         this.availableActions = ['up', 'down', 'left', 'right'];
         this.d = {}
         this.states = {}
         this.randomize = 1;
+        this.moves = 0;
+        this.currentState = null;
     }
 
     getCurrentState() {
@@ -100,10 +102,12 @@ class QLearner {
 
         }
         let dangerStates = [dangerUp, dangerDown, dangerLeft, dangerRight];
+        this.currentState = new State(dangerStates, directionStates, foodStates)
         return new State(dangerStates, directionStates, foodStates);
     }
 
     bestAction(state) {
+        this.moves++;
         // Forbid the snake from turning around 
         let badActionIndex;
         let availableActions = []
@@ -193,7 +197,10 @@ class QLearner {
         }
         let entry = this.d[stateString]
         if (entry != null) {
-            entry[index] = (entry[index] + newQ) / 2.0
+            if(entry[index] != 0)
+                entry[index] = (entry[index] + newQ) / 2.0
+            else
+                entry[index] = newQ
             this.d[stateString] = entry
         }
         else {
@@ -201,19 +208,20 @@ class QLearner {
             entry[index] = newQ
             this.d[stateString] = entry
         }
-        console.log(Object.keys(this.d).length)
-        if (Object.keys(this.d).length > 1) {
+        //console.log(Object.keys(this.d).length)
+        if (Object.keys(this.d).length > 30 || this.moves > 100) {
             for (let i = 0; i < Object.keys(this.d).length; i++) {
                 let tempkey = Object.keys(this.d)[i]
                 let tempstate = this.states[tempkey].toArray()
                 let qvals = this.d[tempkey]
+                console.log("State")
                 console.log(tempstate)
+                console.log("qvals")
                 console.log(qvals)
                 this.brain.train(tempstate, qvals)
             }
-            console.log("Training")
             this.d = {}
-            this.randomize -= 0.1
+            this.moves = 0;
         }
     }
 
