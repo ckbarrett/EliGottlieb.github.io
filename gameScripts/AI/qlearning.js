@@ -16,22 +16,23 @@ let states = [
 actions: 
 let actions = [up, down, left, right]
 */
-let qLearningRate = 0.85;
-let qDiscountFactor = 0.9;
+let qLearningRate = 0.9;
+let qDiscountFactor = 0.85;
 
 class QLearner {
-    constructor(snake, apple) {
-        this.brain = new Network(12, 32, 32, 4);
-        this.snake = snake;
+    constructor(sn, apple) {
+        this.brain = new Network(13, 12, 12, 4);
+        this.snake = sn;
         this.apple = apple;
         this.availableActions = ['up', 'down', 'left', 'right'];
         this.d = {}
         this.states = {}
         this.randomize = 1;
         this.moves = 0;
-        this.currentState = null;
     }
-
+    setSnake(sn) {
+        this.snake = sn
+    }
     getCurrentState() {
         // Get direction of snake
         let xDir = this.snake.xDir[this.snake.xDir.length - 1];
@@ -62,6 +63,7 @@ class QLearner {
         var foodRight = 0;
         var foodUp = 0;
         var foodDown = 0;
+        var distance = 0;
         if (food.x < head.x) {
             foodLeft = 1;
         } else if (food.x > head.x) {
@@ -72,7 +74,8 @@ class QLearner {
         } else if (food.y > head.y) {
             foodDown = 1;
         }
-        let foodStates = [foodUp, foodDown, foodLeft, foodRight];
+        distance = sigmoid(Math.sqrt(Math.pow(food.x - head.x, 2) + Math.pow(food.y - head.y, 2))/1000.0)
+        let foodStates = [foodUp, foodDown, foodLeft, foodRight, distance];
 
         // Get danger to snake
         var dangerUp = 0;
@@ -99,7 +102,6 @@ class QLearner {
             if (((head.y - squareWidth - yOffset) == squ.y) && (head.x == squ.x)) {
                 dangerUp = 1;
             }
-
         }
         let dangerStates = [dangerUp, dangerDown, dangerLeft, dangerRight];
         this.currentState = new State(dangerStates, directionStates, foodStates)
@@ -109,6 +111,7 @@ class QLearner {
     bestAction(state) {
         this.moves++;
         // Forbid the snake from turning around 
+
         let badActionIndex;
         let availableActions = []
         if (state.directionStates[0] == 1) {
@@ -145,67 +148,49 @@ class QLearner {
             }
         }
         if (index == 0) {
-            return "up"
+            return 'up'
         }
         if (index == 1) {
-            return "down"
+            return 'down'
         }
         if (index == 2) {
-            return "left"
+            return 'left'
         }
-        return "right"
+        return 'right'
     }
 
-    updateBrain(state0, state1, reward, act, done) {
-        let newValue;
-        if (done) {
-            newValue = reward;
-        } else {
-            newValue = reward + qDiscountFactor * max(this.brain.predict(state1.toArray())) - max(this.brain.predict(state0.toArray()));
+    updateBrain(state0, futurestates, futurerewards, dones) {
+        let newQs = []
+        for (let i = 0; i < futurestates.length; i++) {
+            let newValue;
+            if (dones[i]) {
+                newValue = futurerewards[i];
+            } else {
+                // newValue = reward + discount factor * estimate of optimal future value - old q value
+                // newValue = reward for going a direction + discount factor * estimate of optimal future value after going that direction - current q value of going that direction 
+                newValue = futurerewards[i] + qDiscountFactor * max(this.brain.predict(futurestates[i].toArray())) - max(this.brain.predict(state0.toArray()));
+            }
+            newQs.push(sigmoid(max(this.brain.predict(state0.toArray())) + qLearningRate * newValue));
         }
-        let newQ = (1 - qLearningRate) * max(this.brain.predict(state0.toArray())) + qLearningRate * newValue;
-        this.updateD(state0, newQ, act)
-
-        /*
-        let outputs = this.brain.predict(state0.toArary())
-        if(act == "up") {
-            outputs[0] = newQ
-        } else if(act == "down"){
-            outputs[1] = newQ
-        } else if(act == "left"){
-            outputs[2] = newQ
-        } else {
-            outputs[3] = newQ
-        }
-        //console.log(outputs)
-        this.brain.train(state0.toArary(), outputs)
-        */
+        console.log(newQs)
+        this.updateD(state0, newQs)
     }
 
-    updateD(state, newQ, act) {
+    updateD(state, newQs) {
         let stateString = state.toString()
         this.states[stateString] = state
-        let index = 0;
-        if (act == "up") {
-            index = 0;
-        } else if (act == "down") {
-            index = 1
-        } else if (act == "left") {
-            index = 2
-        } else {
-            index = 3
-        }
         let entry = this.d[stateString]
         if (entry != null) {
-            if(entry[index] != 0)
-                entry[index] = (entry[index] + newQ) / 2.0
-            else
-                entry[index] = newQ
+            for (let i = 0; i < entry.length; i++) {
+                if (entry[i] != 0)
+                    entry[i] = (entry[i] + newQs[i]) / 2.0
+                else
+                    entry[i] = newQs[i]
+            }
             this.d[stateString] = entry
         }
         else {
-            entry = [0,0,0,0]
-            entry[index] = newQ
+            entry = newQs
             this.d[stateString] = entry
         }
         //console.log(Object.keys(this.d).length)
@@ -214,10 +199,7 @@ class QLearner {
                 let tempkey = Object.keys(this.d)[i]
                 let tempstate = this.states[tempkey].toArray()
                 let qvals = this.d[tempkey]
-                console.log("State")
-                console.log(tempstate)
-                console.log("qvals")
-                console.log(qvals)
+
                 this.brain.train(tempstate, qvals)
             }
             this.d = {}

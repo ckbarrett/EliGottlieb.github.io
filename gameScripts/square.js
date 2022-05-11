@@ -5,4 +5,7 @@ class Square {
         this.y = y;
         this.width = width;
     }
+    static copySquare(sqs) {
+        return new Square (sqs.x, sqs.y, sqs.width)
+    }
   }

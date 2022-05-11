@@ -118,23 +118,29 @@ class Network {
         let hidden1_errors = Matrix.multiply(weights_h1_h2_T, hidden2_errors)
 
         // Calculate hidden1 gradients
+        /*
         console.log("Hidden Layer 1")
         console.log(hidden1)
         console.log("Weights between input and h1")
         console.log(this.weights_input_h1)
+        */
         let graidents_input_h1 = Matrix.map(hidden1, dligmoid)
         graidents_input_h1.multiply(hidden1_errors)
         graidents_input_h1.multiply(this.learningrate)
 
         // Calculate deltas
         let input_T = Matrix.transpose(inputs)
+        /*
         console.log("Gradients between input and h1")
         console.log(graidents_input_h1.data)
         console.log("Input transposed")
         console.log(input_T.data)
+        */
         let weights_input_h1_deltas = Matrix.multiply(graidents_input_h1, input_T)
+        /*
         console.log("Deltas between input and h1")
         console.log(weights_input_h1_deltas.data)
+        */
 
         // Adjust weights by deltas
         this.weights_input_h1.add(weights_input_h1_deltas)
