@@ -34,11 +34,11 @@ class Snake {
     else {
       newsnake.oldTail = null
     }
-    newsnake.oldTailxDir = sn.oldTailxDir;
-    newsnake.oldTailyDir = sn.oldTailyDir;
-    newsnake.xDir = sn.xDir;
-    newsnake.yDir = sn.yDir;
-    newsnake.count = sn.count;
+    newsnake.oldTailxDir = JSON.parse(JSON.stringify(sn.oldTailxDir));
+    newsnake.oldTailyDir = JSON.parse(JSON.stringify(sn.oldTailyDir));
+    newsnake.xDir = JSON.parse(JSON.stringify(sn.xDir));
+    newsnake.yDir = JSON.parse(JSON.stringify(sn.yDir));
+    newsnake.count = JSON.parse(JSON.stringify(sn.count));
     return newsnake
   }
   move() {

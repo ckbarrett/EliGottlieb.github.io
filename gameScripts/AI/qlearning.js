@@ -104,7 +104,6 @@ class QLearner {
             }
         }
         let dangerStates = [dangerUp, dangerDown, dangerLeft, dangerRight];
-        this.currentState = new State(dangerStates, directionStates, foodStates)
         return new State(dangerStates, directionStates, foodStates);
     }
 
@@ -172,6 +171,7 @@ class QLearner {
             }
             newQs.push(sigmoid(max(this.brain.predict(state0.toArray())) + qLearningRate * newValue));
         }
+        console.log("Q vals")
         console.log(newQs)
         this.updateD(state0, newQs)
     }

@@ -320,7 +320,6 @@ function draw() {
       // Set qlearner's snake to savedsnake to get the state after actions are performed
       savedsnake = Snake.copy(realsnake)
       qlearner.snake = savedsnake
-
       // Calculate reward and dones for actionList[i]
       // doAction calls the corresponding goUp, goDown, goLeft, goRight which changes savedsnake's attributes
       doAction(actionList[i], savedsnake)
@@ -329,14 +328,32 @@ function draw() {
         rewardList[i] = appleReward
       }
       // checkCollisions
-      checkCollisions(savedsnake, true)
-      if (gameOver) {
+      if(actionList[i] == 'up' && oldState.toArray()[0] == 1) {
         rewardList[i] = deathReward
         dones[i] = true
       }
-
+      else if (actionList[i] == 'down' && oldState.toArray()[1] == 1) {
+        rewardList[i] = deathReward
+        dones[i] = true
+      }
+      else if (actionList[i] == 'left' && oldState.toArray()[2] == 1) {
+        rewardList[i] = deathReward
+        dones[i] = true
+      }
+      else if (actionList[i] == 'right' && oldState.toArray()[3] == 1) {
+        rewardList[i] = deathReward
+        dones[i] = true
+      }
+      /*
+      checkCollisions(savedsnake)
+      if (gameOver) {
+        rewardList[i] = deathReward
+        dones[i] = true
+      } */
+      
+      gameOver = false;
       // Get the new state after the taken action
-      //savedsnake.move()
+      savedsnake.move()
       newstates[i] = qlearner.getCurrentState()
       console.log("Action simulated: " + actionList[i] + ", Reward: " + rewardList[i] + ", Future state: " + newstates[i] + " Done: " + dones[i])
     }
