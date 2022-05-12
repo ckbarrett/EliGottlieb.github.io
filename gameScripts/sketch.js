@@ -13,6 +13,7 @@ var score = 0;
 let highscore = 0;
 let genCount = 1;
 let randomize_slider;
+let speed_slider;
 var uperrors = []
 var downerrors = []
 var lefterrors = []
@@ -265,7 +266,12 @@ let qlearner;
 
 function setup() {
   window.localStorage.setItem("age", 0)
+  randomize_label = createDiv('Randomness');
   randomize_slider = createSlider(0, 1, 0, .1)
+  randomize_slider.parent(randomize_label)
+  framerate_label = createDiv('Framerate');
+  framerate_slider = createSlider(1, 60, 60, 1)
+  framerate_slider.parent(framerate_label)
   if (userInput) {
     document.getElementById("reset").style.visibility = "hidden"
     document.getElementById("graph").style.visibility = "hidden"
@@ -295,11 +301,12 @@ function setup() {
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
   fr = userInput ? 10 : 50;
-  frameRate(fr);
+  frameRate(framerate_slider.value());
   restartGame();
 }
 
 function draw() {
+  frameRate(framerate_slider.value())
   m++;
   let oldState = null;
   let bestaction = null;
