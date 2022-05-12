@@ -21,7 +21,7 @@ let qDiscountFactor = 0.85;
 
 class QLearner {
     constructor(sn, apple) {
-        this.brain = new Network(13, 12, 12, 4);
+        this.brain = new Network(13, 24, 24, 4);
         this.snake = sn;
         this.apple = apple;
         this.availableActions = ['up', 'down', 'left', 'right'];
@@ -171,8 +171,6 @@ class QLearner {
             }
             newQs.push(sigmoid(max(this.brain.predict(state0.toArray())) + qLearningRate * newValue));
         }
-        console.log("Q vals")
-        console.log(newQs)
         this.updateD(state0, newQs)
     }
 
@@ -194,12 +192,16 @@ class QLearner {
             this.d[stateString] = entry
         }
         //console.log(Object.keys(this.d).length)
-        if (Object.keys(this.d).length > 30 || this.moves > 100) {
+        if (Object.keys(this.d).length > 60 || this.moves > 250) {
+            console.log("-------------------Training-------------------")
+            training++;
+            sets+=Object.keys(this.d).length
+            document.getElementById("training-counter").innerText = "- Trained: " + training;
+            document.getElementById("set-counter").innerText = "- Sets: " + sets
             for (let i = 0; i < Object.keys(this.d).length; i++) {
                 let tempkey = Object.keys(this.d)[i]
                 let tempstate = this.states[tempkey].toArray()
                 let qvals = this.d[tempkey]
-
                 this.brain.train(tempstate, qvals)
             }
             this.d = {}

@@ -22,6 +22,8 @@ var m = 0
 var appleReward = 10
 var deathReward = -10
 var safeReward = 0
+var training = 0;
+var sets = 0;
 
 ///////////////// Util Functions ///////////////////////
 function resetJimmy() {
@@ -29,6 +31,10 @@ function resetJimmy() {
   //window.localStorage.setItem("qTable", {})
   window.localStorage.setItem("age", 0)
   qlearner.brain = new Network(13, 12, 12, 4);
+  uperrors = []
+  downerrors = []
+  lefterrors = []
+  righterrors = []
   restartGame()
 }
 
@@ -182,7 +188,7 @@ function restartGame() {
     let globalgencount = parseInt(window.localStorage.getItem("age"))
     globalgencount++;
     window.localStorage.setItem("age", globalgencount)
-    if (!userInput) document.getElementById("generation-counter").innerText = "Jimmy's: " + globalgencount;
+    if (!userInput) document.getElementById("generation-counter").innerText = "- Jimmy's: " + globalgencount;
   }
   score = 0;
   document.getElementById("score-counter").innerText = score;
@@ -272,13 +278,15 @@ function setup() {
   framerate_label = createDiv('Framerate');
   framerate_slider = createSlider(1, 60, 60, 1)
   framerate_slider.parent(framerate_label)
+  document.getElementById("training-counter").innerText = "- Trained: " + 0;
+  document.getElementById("set-counter").innerText = "- Sets: " + 0;
   if (userInput) {
-    document.getElementById("reset").style.visibility = "hidden"
+    //document.getElementById("reset").style.visibility = "hidden"
     document.getElementById("graph").style.visibility = "hidden"
   }
   else {
     qlearner = new QLearner(realsnake, apple);
-    document.getElementById("reset").onclick = resetJimmy
+    //document.getElementById("reset").onclick = resetJimmy
     document.getElementById("graph").onclick = graph
   }
   /*
@@ -335,7 +343,7 @@ function draw() {
         rewardList[i] = appleReward
       }
       // checkCollisions
-      if(actionList[i] == 'up' && oldState.toArray()[0] == 1) {
+      if (actionList[i] == 'up' && oldState.toArray()[0] == 1) {
         rewardList[i] = deathReward
         dones[i] = true
       }
@@ -357,7 +365,7 @@ function draw() {
         rewardList[i] = deathReward
         dones[i] = true
       } */
-      
+
       gameOver = false;
       // Get the new state after the taken action
       savedsnake.move()
