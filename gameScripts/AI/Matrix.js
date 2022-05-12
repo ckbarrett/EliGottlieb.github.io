@@ -42,6 +42,7 @@ class Matrix {
         return arr;
     }
 
+
     randomize() {
         return this.map(e => Math.random()* 2 - 1);
     }

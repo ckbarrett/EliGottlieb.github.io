@@ -24,13 +24,22 @@ var deathReward = -10
 var safeReward = 0
 var training = 0;
 var sets = 0;
+var hiddenLayerSize = 24;
+var qlearner;
 
 ///////////////// Util Functions ///////////////////////
 function resetJimmy() {
   console.log("Jimmy has been wiped.")
-  //window.localStorage.setItem("qTable", {})
   window.localStorage.setItem("age", 0)
-  qlearner.brain = new Network(13, 12, 12, 4);
+  window.localStorage.setItem("highscore", 0)
+  window.localStorage.setItem("training", 0)
+  window.localStorage.setItem("sets", 0)
+  document.getElementById("set-counter").innerText = "- Sets: " + 0;
+  document.getElementById("training-counter").innerText = "- Trained: " + 0;
+  document.getElementById("highscore").innerText = 0;
+  document.getElementById("generation-counter").innerText = "- Jimmy's: " + 0;
+  qlearner.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
+  uploadBrain()
   uperrors = []
   downerrors = []
   lefterrors = []
@@ -146,14 +155,13 @@ function checkEatingApple(sn, sim) {
     sn.squares.unshift(new Square(sn.oldTail.x, sn.oldTail.y, squareWidth))
     sn.xDir.unshift(sn.oldTailxDir);
     sn.yDir.unshift(sn.oldTailyDir);
-
     apple.square = apple.getRandomSquare();
     drawSquare(apple.square, color(255, 0, 0));
     score++;
     document.getElementById("score-counter").innerText = score;
-    if (score > highscore) {
-      highscore = score
-      document.getElementById("high-score").innerText = highscore;
+    if (score > parseInt(window.localStorage.getItem("highscore"))) {
+      window.localStorage.setItem("highscore", score)
+      document.getElementById("highscore").innerText = score;
     }
     return true;
   }
@@ -177,6 +185,24 @@ function snakeContains(x, y) {
   return false;
 }
 
+function uploadBrain() {
+  window.localStorage.setItem("bias_h1", JSON.stringify(qlearner.brain.bias_h1.data))
+  window.localStorage.setItem("bias_h2", JSON.stringify(qlearner.brain.bias_h2.data))
+  window.localStorage.setItem("bias_output", JSON.stringify(qlearner.brain.bias_output.data))
+  window.localStorage.setItem("weights_input_h1", JSON.stringify(qlearner.brain.weights_input_h1.data))
+  window.localStorage.setItem("weights_h1_h2", JSON.stringify(qlearner.brain.weights_h1_h2.data))
+  window.localStorage.setItem("weights_h2_output", JSON.stringify(qlearner.brain.weights_h2_output.data))
+}
+
+function downloadBrain() {
+  qlearner.brain.bias_h1.data = JSON.parse(window.localStorage.getItem("bias_h1"))
+  qlearner.brain.bias_h2.data = JSON.parse(window.localStorage.getItem("bias_h2"))
+  qlearner.brain.bias_output.data = JSON.parse(window.localStorage.getItem("bias_output"))
+  qlearner.brain.weights_input_h1.data = JSON.parse(window.localStorage.getItem("weights_input_h1"))
+  qlearner.brain.weights_h1_h2.data = JSON.parse(window.localStorage.getItem("weights_h1_h2"))
+  qlearner.brain.weights_h2_output.data = JSON.parse(window.localStorage.getItem("weights_h2_output"))
+}
+
 function restartGame() {
   m = 0
   realsnake = new Snake();
@@ -188,15 +214,17 @@ function restartGame() {
     let globalgencount = parseInt(window.localStorage.getItem("age"))
     globalgencount++;
     window.localStorage.setItem("age", globalgencount)
-    if (!userInput) document.getElementById("generation-counter").innerText = "- Jimmy's: " + globalgencount;
+    document.getElementById("generation-counter").innerText = "- Jimmy's: " + globalgencount;
+    uploadBrain()
+    downloadBrain()
   }
-  score = 0;
-  document.getElementById("score-counter").innerText = score;
+  resetscore = 0;
+  score = resetscore
+  document.getElementById("score-counter").innerText = resetscore;
   background(255);
   drawSnakeComplete();
   drawSquare(apple.square, color(255, 0, 0));
   gameOver = false;
-
 }
 
 function goUp(sn) {
@@ -268,25 +296,26 @@ let training_data = [{
 }];
 
 //////////////// P5 Functions /////////////////////////////////////////////////
-let qlearner;
+
 
 function setup() {
-  window.localStorage.setItem("age", 0)
   randomize_label = createDiv('Randomness');
   randomize_slider = createSlider(0, 1, 0, .1)
   randomize_slider.parent(randomize_label)
   framerate_label = createDiv('Framerate');
   framerate_slider = createSlider(1, 60, 60, 1)
   framerate_slider.parent(framerate_label)
-  document.getElementById("training-counter").innerText = "- Trained: " + 0;
-  document.getElementById("set-counter").innerText = "- Sets: " + 0;
+  document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
+  document.getElementById("training-counter").innerText = "- Trained: " + parseInt(window.localStorage.getItem("training"));
+  document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"));
   if (userInput) {
-    //document.getElementById("reset").style.visibility = "hidden"
+    document.getElementById("reset").style.visibility = "hidden"
     document.getElementById("graph").style.visibility = "hidden"
   }
   else {
     qlearner = new QLearner(realsnake, apple);
-    //document.getElementById("reset").onclick = resetJimmy
+    downloadBrain()
+    document.getElementById("reset").onclick = resetJimmy
     document.getElementById("graph").onclick = graph
   }
   /*
@@ -326,9 +355,8 @@ function draw() {
     var rewardList = [safeReward, safeReward, safeReward, safeReward]
     var newstates = [0, 0, 0, 0]
     var dones = [false, false, false, false]
-
-    console.log("Current state: ")
-    console.log(oldState.toArray())
+    //console.log("Current state: ")
+    //console.log(oldState.toArray())
     var savedsnake;
     for (let i = 0; i < actionList.length; i++) {
       // Copy realsnake into savedsnake in order to simulate moves with savedsnake
@@ -359,30 +387,21 @@ function draw() {
         rewardList[i] = deathReward
         dones[i] = true
       }
-      /*
-      checkCollisions(savedsnake)
-      if (gameOver) {
-        rewardList[i] = deathReward
-        dones[i] = true
-      } */
-
-      gameOver = false;
-      // Get the new state after the taken action
       savedsnake.move()
       newstates[i] = qlearner.getCurrentState()
       // Reward moving closer to apple
-      if(newstates[i].toArray()[12] < oldState.toArray()[12])
-      {
+      let distanceIndex = 12;
+      if (newstates[i].toArray()[distanceIndex] < oldState.toArray()[distanceIndex]) {
         rewardList[i]++;
       }
-      console.log("Action simulated: " + actionList[i] + ", Reward: " + rewardList[i] + ", Future state: " + newstates[i] + " Done: " + dones[i])
+      //console.log("Action simulated: " + actionList[i] + ", Reward: " + rewardList[i] + ", Future state: " + newstates[i] + " Done: " + dones[i])
     }
 
     // Reset qlearner's snake to realsnake 
     qlearner.snake = realsnake
     // Get best action and do the action
     bestaction = qlearner.bestAction(oldState);
-    console.log("Best action: " + bestaction)
+    //console.log("Best action: " + bestaction)
     doAction(bestaction, realsnake);
   }
   // Check if eating apple to update score. Reward does not need to be updated as all possible rewards for moves have already been calculated
@@ -398,6 +417,7 @@ function draw() {
       drawPlayAgainButton();
       return;
     } else {
+      window.localStorage.setItem("brain", JSON.stringify(qlearner.brain))
       genCount++;
       //realsnake.move(); ???????????????
       restartGame();

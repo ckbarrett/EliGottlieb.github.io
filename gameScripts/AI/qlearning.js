@@ -21,12 +21,12 @@ let qDiscountFactor = 0.85;
 
 class QLearner {
     constructor(sn, apple) {
-        this.brain = new Network(13, 24, 24, 4);
+        this.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
         this.snake = sn;
         this.apple = apple;
         this.availableActions = ['up', 'down', 'left', 'right'];
-        this.d = {}
-        this.states = {}
+        this.d = {};
+        this.states = {};
         this.randomize = 1;
         this.moves = 0;
     }
@@ -74,7 +74,7 @@ class QLearner {
         } else if (food.y > head.y) {
             foodDown = 1;
         }
-        distance = sigmoid(Math.sqrt(Math.pow(food.x - head.x, 2) + Math.pow(food.y - head.y, 2))/1000.0)
+        distance = sigmoid(Math.sqrt(Math.pow(food.x - head.x, 2) + Math.pow(food.y - head.y, 2)) / 1000.0)
         let foodStates = [foodUp, foodDown, foodLeft, foodRight, distance];
 
         // Get danger to snake
@@ -110,7 +110,6 @@ class QLearner {
     bestAction(state) {
         this.moves++;
         // Forbid the snake from turning around 
-
         let badActionIndex;
         let availableActions = []
         if (state.directionStates[0] == 1) {
@@ -136,8 +135,8 @@ class QLearner {
 
         //q becomes brain.predict() 
         let outputs = this.brain.predict(state.toArray())
-        console.log("Prediction: ");
-        console.log(outputs);
+        //console.log("Prediction: ");
+        //console.log(outputs);
         var m = outputs[0]
         var index = 0;
         for (let i = 1; i < outputs.length; i++) {
@@ -193,11 +192,18 @@ class QLearner {
         }
         //console.log(Object.keys(this.d).length)
         if (Object.keys(this.d).length > 60 || this.moves > 250) {
-            console.log("-------------------Training-------------------")
-            training++;
-            sets+=Object.keys(this.d).length
-            document.getElementById("training-counter").innerText = "- Trained: " + training;
-            document.getElementById("set-counter").innerText = "- Sets: " + sets
+            
+            let globaltrainingcount = parseInt(window.localStorage.getItem("training"))
+            globaltrainingcount++;
+            document.getElementById("training-counter").innerText = "- Trained: " + globaltrainingcount;
+            window.localStorage.setItem("training", globaltrainingcount)
+            
+            
+            
+            let globalsetcount = parseInt(window.localStorage.getItem("sets"))
+            globalsetcount += Object.keys(this.d).length
+            document.getElementById("set-counter").innerText = "- Sets: " + globalsetcount;
+            window.localStorage.setItem("sets", globalsetcount)
             for (let i = 0; i < Object.keys(this.d).length; i++) {
                 let tempkey = Object.keys(this.d)[i]
                 let tempstate = this.states[tempkey].toArray()
