@@ -370,6 +370,11 @@ function draw() {
       // Get the new state after the taken action
       savedsnake.move()
       newstates[i] = qlearner.getCurrentState()
+      // Reward moving closer to apple
+      if(newstates[i].toArray()[12] < oldState.toArray()[12])
+      {
+        rewardList[i]++;
+      }
       console.log("Action simulated: " + actionList[i] + ", Reward: " + rewardList[i] + ", Future state: " + newstates[i] + " Done: " + dones[i])
     }
 
