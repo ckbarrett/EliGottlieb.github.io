@@ -105,7 +105,7 @@ class Network {
         this.bias_h1 = biases[0];
         this.bias_h2 = biases[1];
         this.bias_output = biases[2]
-        console.log(set123)
+        //console.log(set123)
         set1.push(set123[0])
         set2.push(set123[1])
         set3.push(set123[2])

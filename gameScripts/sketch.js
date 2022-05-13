@@ -25,7 +25,7 @@ var deathReward = -10
 var safeReward = 0
 var training = 0;
 var sets = 0;
-var hiddenLayerSize = 24;
+var hiddenLayerSize = 60;
 var qlearner;
 var contGraph;
 
@@ -48,7 +48,7 @@ function resetJimmy() {
   // Create new brain and overwrite old brain
   qlearner.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
   uploadBrain()
-  restartGame()
+  location.reload();
 }
 
 function livegraph() {
