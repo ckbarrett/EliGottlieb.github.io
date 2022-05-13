@@ -15,6 +15,7 @@ class Snake {
     this.count = 0;
   }
 
+  // Return a deep copy of Snake sn
   static copy(sn) {
     let newsnake = new Snake()
     let tempsquares = []
@@ -41,6 +42,7 @@ class Snake {
     newsnake.count = JSON.parse(JSON.stringify(sn.count));
     return newsnake
   }
+
   move() {
     // Update old tail
     // Make a deep copy

@@ -1,5 +1,5 @@
 /*
-let states = [
+let state = [
     dangerStates:
     danger up, danger down, 
     danger left, danger right
@@ -25,14 +25,12 @@ class QLearner {
         this.snake = sn;
         this.apple = apple;
         this.availableActions = ['up', 'down', 'left', 'right'];
-        this.d = {};
+        this.experienceRelay = {};
         this.states = {};
         this.randomize = 1;
         this.moves = 0;
     }
-    setSnake(sn) {
-        this.snake = sn
-    }
+
     getCurrentState() {
         // Get direction of snake
         let xDir = this.snake.xDir[this.snake.xDir.length - 1];
@@ -109,7 +107,7 @@ class QLearner {
 
     bestAction(state) {
         this.moves++;
-        // Forbid the snake from turning around 
+        // Forbid the snake from turning around while using random motion
         let badActionIndex;
         let availableActions = []
         if (state.directionStates[0] == 1) {
@@ -133,10 +131,8 @@ class QLearner {
             return availableActions[random];
         }
 
-        //q becomes brain.predict() 
+        // Get outputs of the Network and find the chosen action
         let outputs = this.brain.predict(state.toArray())
-        //console.log("Prediction: ");
-        //console.log(outputs);
         var m = outputs[0]
         var index = 0;
         for (let i = 1; i < outputs.length; i++) {
@@ -158,6 +154,7 @@ class QLearner {
     }
 
     updateBrain(state0, futurestates, futurerewards, dones) {
+        // state0 is current state, the rest of the arrays corresponding to 'up', 'down', 'left', 'right'
         let newQs = []
         for (let i = 0; i < futurestates.length; i++) {
             let newValue;
@@ -170,13 +167,11 @@ class QLearner {
             }
             newQs.push(sigmoid(max(this.brain.predict(state0.toArray())) + qLearningRate * newValue));
         }
-        this.updateD(state0, newQs)
-    }
 
-    updateD(state, newQs) {
-        let stateString = state.toString()
-        this.states[stateString] = state
-        let entry = this.d[stateString]
+        // Now that we have q values for each move off of the current state, store them in memory
+        let stateString = state0.toString()
+        this.states[stateString] = state0
+        let entry = this.experienceRelay[stateString]
         if (entry != null) {
             for (let i = 0; i < entry.length; i++) {
                 if (entry[i] != 0)
@@ -184,33 +179,38 @@ class QLearner {
                 else
                     entry[i] = newQs[i]
             }
-            this.d[stateString] = entry
+            this.experienceRelay[stateString] = entry
         }
         else {
             entry = newQs
-            this.d[stateString] = entry
+            this.experienceRelay[stateString] = entry
         }
-        //console.log(Object.keys(this.d).length)
-        if (Object.keys(this.d).length > 60 || this.moves > 250) {
-            
+
+        // Check to see if the network should train, 60 unique states saved or 250 moves since last train
+        if (Object.keys(this.experienceRelay).length > 60 || this.moves > 250) {
+
+            // Update global set counter
             let globaltrainingcount = parseInt(window.localStorage.getItem("training"))
-            globaltrainingcount++;
+            globaltrainingcount += Object.keys(this.experienceRelay).length
             document.getElementById("training-counter").innerText = "- Trained: " + globaltrainingcount;
             window.localStorage.setItem("training", globaltrainingcount)
             
-            
-            
+            // Update global training counter
             let globalsetcount = parseInt(window.localStorage.getItem("sets"))
-            globalsetcount += Object.keys(this.d).length
+            globalsetcount++;
             document.getElementById("set-counter").innerText = "- Sets: " + globalsetcount;
             window.localStorage.setItem("sets", globalsetcount)
-            for (let i = 0; i < Object.keys(this.d).length; i++) {
-                let tempkey = Object.keys(this.d)[i]
+            
+            // Train network on each pair of state and qVals
+            for (let i = 0; i < Object.keys(this.experienceRelay).length; i++) {
+                let tempkey = Object.keys(this.experienceRelay)[i]
                 let tempstate = this.states[tempkey].toArray()
-                let qvals = this.d[tempkey]
+                let qvals = this.experienceRelay[tempkey]
                 this.brain.train(tempstate, qvals)
             }
-            this.d = {}
+
+            // Reset memory and move counter
+            this.experienceRelay = {}
             this.moves = 0;
         }
     }

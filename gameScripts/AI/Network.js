@@ -51,7 +51,7 @@ class Network {
     train(input_array, target_array) {
         let inputs = Matrix.fromArray(input_array);
         let targets = Matrix.fromArray(target_array);
-
+        
         // Calculate raw hidden1 activation
         let hidden1 = Matrix.multiply(this.weights_input_h1, inputs);
         hidden1.add(this.bias_h1);
@@ -69,23 +69,49 @@ class Network {
         outputs.add(this.bias_output);
         // Map sigmoid on output activation
         outputs.map(sigmoid)
+        
+        // Back propogation time, calculate errors, format layers, weights, and biases
+        var errs = Matrix.subtract(targets, outputs)
+        let layers = [inputs, hidden1, hidden2, outputs]
+        let weights = [this.weights_input_h1, this.weights_h1_h2, this.weights_h2_output]
+        let biases = [this.bias_h1, this.bias_h2, this.bias_output]
 
+        // Iterate through layers: solve for gradient, deltas, apply gradient and deltas, solve for new errors
+        for (let i = layers.length - 1; i > 0; i--) {
+            let currentLayer = layers[i];
+            let previousLayer = layers[i - 1];
+            let gapIndex = i - 1;
+            
+            let currentLayer_gradients = Matrix.map(currentLayer, dligmoid);
+            currentLayer_gradients.multiply(errs);
+            currentLayer_gradients.multiply(this.learningrate);
+
+            let previousLayer_T = Matrix.transpose(previousLayer);
+            let weight_deltas = Matrix.multiply(currentLayer_gradients, previousLayer_T);
+
+            weights[gapIndex].add(weight_deltas);
+            biases[gapIndex].add(currentLayer_gradients);
+
+            let currentWeights_T = Matrix.transpose(weights[gapIndex])
+            errs = Matrix.multiply(currentWeights_T, errs)
+        }
+
+        // Save new weights and biases within the network
+        this.weights_input_h1 = weights[0];
+        this.weights_h1_h2 = weights[1];
+        this.weights_h2_output = weights[2];
+
+        this.bias_h1 = biases[0];
+        this.bias_h2 = biases[1];
+        this.bias_output = biases[2]
+    }
+}
+
+// Back propogation training without a loop
+        /*
         // Calculate initial error
         let output_errors = Matrix.subtract(targets, outputs)
-        /*
-        let arr1 = JSON.parse(window.localStorage.getItem("graphset1"))
-        let arr2 = JSON.parse(window.localStorage.getItem("graphset2"))
-        let arr3 = JSON.parse(window.localStorage.getItem("graphset3"))
-        //let arr4 = JSON.parse(window.localStorage.getItem("graphset4"))
-        arr1.push(this.weights_input_h1.data[0][0])
-        arr2.push(this.weights_h1_h2.data[1][0])
-        arr3.push(this.weights_h2_output.data[2][0])
-        //arr4.push(this.weights_h2_output.data[2][0])
-        window.localStorage.setItem("graphset1", JSON.stringify(arr1))
-        window.localStorage.setItem("graphset2", JSON.stringify(arr2))
-        window.localStorage.setItem("graphset3", JSON.stringify(arr3))
-        //window.localStorage.setItem("graphset4", JSON.stringify(arr4))
-        */
+
         // Calculate output gradients
         let gradients_h2_o = Matrix.map(outputs, dligmoid)
         gradients_h2_o.multiply(output_errors)
@@ -124,70 +150,17 @@ class Network {
         let hidden1_errors = Matrix.multiply(weights_h1_h2_T, hidden2_errors)
 
         // Calculate hidden1 gradients
-        /*
-        console.log("Hidden Layer 1")
-        console.log(hidden1)
-        console.log("Weights between input and h1")
-        console.log(this.weights_input_h1)
-        */
         let graidents_input_h1 = Matrix.map(hidden1, dligmoid)
         graidents_input_h1.multiply(hidden1_errors)
         graidents_input_h1.multiply(this.learningrate)
 
         // Calculate deltas
         let input_T = Matrix.transpose(inputs)
-        /*
-        console.log("Gradients between input and h1")
-        console.log(graidents_input_h1.data)
-        console.log("Input transposed")
-        console.log(input_T.data)
-        */
         let weights_input_h1_deltas = Matrix.multiply(graidents_input_h1, input_T)
-        /*
-        console.log("Deltas between input and h1")
-        console.log(weights_input_h1_deltas.data)
-        */
 
         // Adjust weights by deltas
         this.weights_input_h1.add(weights_input_h1_deltas)
         // Adjust biases by deltas
         this.bias_h1.add(graidents_input_h1)
-        
+        */
         // Calculater error matrix as targets - outputs
-        /*
-        var errs = Matrix.subtract(targets, outputs)
-        console.log("Errors: ")
-        console.log(errs.data)
-        let layers = [inputs, hidden1, hidden2, outputs]
-        let weights = [this.weights_input_h1, this.weights_h1_h2, this.weights_h2_output]
-        let biases = [this.bias_h1, this.bias_h2, this.bias_output]
-        errors.push(errs.data[0][0])
-        for (let i = layers.length - 1; i > 0; i--) {
-            let currentLayer = layers[i];
-            let previousLayer = layers[i - 1];
-            let gapIndex = i - 1;
-            
-            let currentLayer_gradients = Matrix.map(currentLayer, dligmoid);
-            currentLayer_gradients.multiply(errs);
-            currentLayer_gradients.multiply(this.learningrate);
-
-            let previousLayer_T = Matrix.transpose(previousLayer);
-            let weight_deltas = Matrix.multiply(currentLayer_gradients, previousLayer_T);
-
-            weights[gapIndex].add(weight_deltas);
-            biases[gapIndex].add(currentLayer_gradients);
-
-            let currentWeights_T = Matrix.transpose(weights[gapIndex])
-            errs = Matrix.multiply(currentWeights_T, errs)
-        }
-
-        this.weights_input_h1 = weights[0];
-        this.weights_h1_h2 = weights[1];
-        this.weights_h2_output = weights[2];
-
-        this.bias_h1 = biases[0];
-        this.bias_h2 = biases[1];
-        this.bias_output = biases[2]
-*/
-    }
-}
