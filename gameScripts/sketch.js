@@ -27,6 +27,7 @@ var training = 0;
 var sets = 0;
 var hiddenLayerSize = 24;
 var qlearner;
+var contGraph;
 
 ///////////////// Util Functions ///////////////////////
 // Hard reset storage to restart the learning processes
@@ -50,19 +51,26 @@ function resetJimmy() {
   restartGame()
 }
 
+function livegraph() {
+  document.getElementById("graph").style.visibility = "hidden";
+  graph()
+  contGraph = window.setInterval(graph, 2000);
+}
+
 // Create graph in HTML
 function graph() {
   trialmarkers = []
   for (let i = 0; i < set1.length; i++) {
     trialmarkers.push(i)
   }
-  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1 }, { x: trialmarkers, y: set2 }, { x: trialmarkers, y: set3 }, { x: trialmarkers, y: set4 }])
+  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1, name: "Output Errors"}, { x: trialmarkers, y: set2, name: "H2 Errors" }, { x: trialmarkers, y: set3, name: "H1 Errors" }])
   document.getElementById("myDiv").style.display = "block";
   document.getElementById("hidegraph").style.visibility = "visible";
   console.log("graphed")
 }
 
 function hidegraph() {
+  clearInterval(contGraph)
   document.getElementById("myDiv").style.display = "none";
   document.getElementById("hidegraph").style.visibility = "hidden"
   document.getElementById("graph").style.visibility = "visible";
@@ -83,19 +91,19 @@ function drawRect(x, y, w, h, clr) {
 function drawSnake() {
   drawSquare(realsnake.oldTail, color(255, 255, 255));
   drawOffset(realsnake.oldTail, realsnake.oldTailxDir, realsnake.oldTailyDir, color(255, 255, 255));
-  drawSquare(realsnake.head, color(0, 255, 0));
-  drawOffset(realsnake.squares[realsnake.squares.length - 2], realsnake.xDir[realsnake.xDir.length - 2], realsnake.yDir[realsnake.yDir.length - 2], color(0, 255, 0));
+  drawSquare(realsnake.head, color(128, 80, 200));
+  drawOffset(realsnake.squares[realsnake.squares.length - 2], realsnake.xDir[realsnake.xDir.length - 2], realsnake.yDir[realsnake.yDir.length - 2], color(128, 80, 200));
 }
 
 function drawSnakeComplete() {
   // Draw Squares
   for (let i = 0; i < realsnake.squares.length; i++) {
     let tempsq = realsnake.squares[i];
-    drawSquare(tempsq, color(0, 255, 0));
+    drawSquare(tempsq, color(128, 80, 200));
   }
   // Fill offsets
   for (let i = 0; i < realsnake.squares.length - 1; i++) {
-    drawOffset(realsnake.squares[i], realsnake.xDir[i], realsnake.yDir[i], color(0, 255, 0));
+    drawOffset(realsnake.squares[i], realsnake.xDir[i], realsnake.yDir[i], color(128, 80, 200));
   }
 }
 
@@ -387,7 +395,7 @@ function setup() {
 
     // Create event listeners for clicking buttons
     document.getElementById("reset").onclick = resetJimmy
-    document.getElementById("graph").onclick = graph
+    document.getElementById("graph").onclick = livegraph
     document.getElementById("hidegraph").onclick = hidegraph
   }
 

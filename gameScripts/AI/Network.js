@@ -71,9 +71,9 @@ class Network {
         outputs.map(sigmoid)
         
         // Back propogation time, calculate errors, format layers, weights, and biases
-        let set1234 = [[],[],[],[]]
+        let set123 = [0,0,0]
         var errs = Matrix.subtract(targets, outputs)
-        set1234[3] = errs.data
+        set123[2] = errs.toArray()[0]
         let layers = [inputs, hidden1, hidden2, outputs]
         let weights = [this.weights_input_h1, this.weights_h1_h2, this.weights_h2_output]
         let biases = [this.bias_h1, this.bias_h2, this.bias_output]
@@ -95,9 +95,8 @@ class Network {
 
             let currentWeights_T = Matrix.transpose(weights[gapIndex])
             errs = Matrix.multiply(currentWeights_T, errs)
-            set1234[gapIndex] = errs.toArray()[0]
+            set123[gapIndex] = errs.toArray()[0]
         }
-
         // Save new weights and biases within the network
         this.weights_input_h1 = weights[0];
         this.weights_h1_h2 = weights[1];
@@ -106,11 +105,10 @@ class Network {
         this.bias_h1 = biases[0];
         this.bias_h2 = biases[1];
         this.bias_output = biases[2]
-
-        set1.push(set1234[0])
-        set2.push(set1234[1])
-        set3.push(set1234[2])
-        set4.push(set1234[3])
+        console.log(set123)
+        set1.push(set123[0])
+        set2.push(set123[1])
+        set3.push(set123[2])
     }
 }
 
