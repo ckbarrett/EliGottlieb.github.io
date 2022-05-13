@@ -185,7 +185,7 @@ function calculateCanvasSize() {
   // Extra width and height will be split automatically when canvas is centered
   let extraWidth = (window.innerWidth % (xOffset + squareWidth)) + xOffset;
   let canvasWidth = window.innerWidth - extraWidth;
-  let extraHeightBuffer = (squareWidth + yOffset);
+  let extraHeightBuffer = 3 * (squareWidth + yOffset);
   let extraHeight = (window.innerHeight % (yOffset + squareWidth)) + yOffset + extraHeightBuffer;
   let canvasHeight = window.innerHeight - extraHeight;
   return { canvasWidth, canvasHeight };
