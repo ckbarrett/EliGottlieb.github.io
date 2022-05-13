@@ -70,16 +70,22 @@ class Network {
         // Map sigmoid on output activation
         outputs.map(sigmoid)
 
-      
         // Calculate initial error
         let output_errors = Matrix.subtract(targets, outputs)
-        errors.push(output_errors.data[0][0])
-        
-        //uperrors.push(inputs.data[0][0])
-        downerrors.push(this.weights_h1_h2.data[1][0])
-        lefterrors.push(this.weights_h2_output.data[2][0])
-        //righterrors.push(outputs.data[3][0])
-
+        /*
+        let arr1 = JSON.parse(window.localStorage.getItem("graphset1"))
+        let arr2 = JSON.parse(window.localStorage.getItem("graphset2"))
+        let arr3 = JSON.parse(window.localStorage.getItem("graphset3"))
+        //let arr4 = JSON.parse(window.localStorage.getItem("graphset4"))
+        arr1.push(this.weights_input_h1.data[0][0])
+        arr2.push(this.weights_h1_h2.data[1][0])
+        arr3.push(this.weights_h2_output.data[2][0])
+        //arr4.push(this.weights_h2_output.data[2][0])
+        window.localStorage.setItem("graphset1", JSON.stringify(arr1))
+        window.localStorage.setItem("graphset2", JSON.stringify(arr2))
+        window.localStorage.setItem("graphset3", JSON.stringify(arr3))
+        //window.localStorage.setItem("graphset4", JSON.stringify(arr4))
+        */
         // Calculate output gradients
         let gradients_h2_o = Matrix.map(outputs, dligmoid)
         gradients_h2_o.multiply(output_errors)

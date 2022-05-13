@@ -1,8 +1,8 @@
 //One snake that is visable and moving
 //One snake to test everything the realsnake doesnt do?
-let squareWidth = 30;
-let xOffset = 50;
-let yOffset = 50;
+let squareWidth = 20;
+let xOffset = 5;
+let yOffset = 5;
 let fr;
 var realsnake;
 let apple;
@@ -14,10 +14,12 @@ let highscore = 0;
 let genCount = 1;
 let randomize_slider;
 let speed_slider;
-var uperrors = []
-var downerrors = []
-var lefterrors = []
-var righterrors = []
+/*
+var set1 = []
+var set2 = []
+var set3 = []
+var set4 = []
+*/
 var m = 0
 var appleReward = 10
 var deathReward = -10
@@ -28,31 +30,42 @@ var hiddenLayerSize = 24;
 var qlearner;
 
 ///////////////// Util Functions ///////////////////////
+// Hard reset storage to restart the learning processes
 function resetJimmy() {
   console.log("Jimmy has been wiped.")
+  // Wipe storage 
   window.localStorage.setItem("age", 0)
   window.localStorage.setItem("highscore", 0)
   window.localStorage.setItem("training", 0)
   window.localStorage.setItem("sets", 0)
+  window.localStorage.setItem("graphset1", JSON.stringify([]))
+  window.localStorage.setItem("graphset2", JSON.stringify([]))
+  window.localStorage.setItem("graphset3", JSON.stringify([]))
+  window.localStorage.setItem("graphset4", JSON.stringify([]))
+  
+  // Reset HTML elements
   document.getElementById("set-counter").innerText = "- Sets: " + 0;
   document.getElementById("training-counter").innerText = "- Trained: " + 0;
   document.getElementById("highscore").innerText = 0;
   document.getElementById("generation-counter").innerText = "- Jimmy's: " + 0;
+
+  // Create new brain and overwrite old brain
   qlearner.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
   uploadBrain()
-  uperrors = []
-  downerrors = []
-  lefterrors = []
-  righterrors = []
   restartGame()
 }
 
+
+// Create graph in HTML
 function graph() {
-  for (let i = 0; i < downerrors.length; i++) {
+  let set1 = JSON.parse(window.localStorage.getItem("graphset1"))
+  let set2 = JSON.parse(window.localStorage.getItem("graphset2"))
+  let set3 = JSON.parse(window.localStorage.getItem("graphset3"))
+  for (let i = 0; i < set1.length; i++) {
     trialmarkers.push(i)
   }
-  //Plotly.newPlot('myDiv', [{x: trialmarkers, y: uperrors}, {x: trialmarkers, y: downerrors}, {x: trialmarkers, y: lefterrors}, {x: trialmarkers, y: righterrors}])
-  Plotly.newPlot('myDiv', [{ x: trialmarkers, y: downerrors }, { x: trialmarkers, y: lefterrors }])
+  Plotly.react('myDiv', [{ x: trialmarkers, y: set1 }, { x: trialmarkers, y: set2 }, { x: trialmarkers, y: set3 }])
+  console.log("graphed")
 }
 
 function drawSquare(square, clr) {
@@ -185,6 +198,7 @@ function snakeContains(x, y) {
   return false;
 }
 
+// Set elements in storage to corresponding brain attributes
 function uploadBrain() {
   window.localStorage.setItem("bias_h1", JSON.stringify(qlearner.brain.bias_h1.data))
   window.localStorage.setItem("bias_h2", JSON.stringify(qlearner.brain.bias_h2.data))
@@ -194,6 +208,7 @@ function uploadBrain() {
   window.localStorage.setItem("weights_h2_output", JSON.stringify(qlearner.brain.weights_h2_output.data))
 }
 
+// Set attributes of brain to elements in storage
 function downloadBrain() {
   qlearner.brain.bias_h1.data = JSON.parse(window.localStorage.getItem("bias_h1"))
   qlearner.brain.bias_h2.data = JSON.parse(window.localStorage.getItem("bias_h2"))
@@ -203,21 +218,28 @@ function downloadBrain() {
   qlearner.brain.weights_h2_output.data = JSON.parse(window.localStorage.getItem("weights_h2_output"))
 }
 
+// Restart game but do not hard reset learning process
 function restartGame() {
   m = 0
   realsnake = new Snake();
   savedsnake = new Snake();
   apple = new Apple();
   if (!userInput) {
+    // Reset snake and apple
     qlearner.snake = realsnake;
     qlearner.apple = apple;
+
+    // Update generation counter in storage and HTML element
     let globalgencount = parseInt(window.localStorage.getItem("age"))
     globalgencount++;
     window.localStorage.setItem("age", globalgencount)
     document.getElementById("generation-counter").innerText = "- Jimmy's: " + globalgencount;
+
+    // Upload brain to save on death
     uploadBrain()
-    downloadBrain()
   }
+
+  // Reset score to 0
   resetscore = 0;
   score = resetscore
   document.getElementById("score-counter").innerText = resetscore;
@@ -299,22 +321,31 @@ let training_data = [{
 
 
 function setup() {
+  // Create labels and sliders for randomness and framerate
   randomize_label = createDiv('Randomness');
   randomize_slider = createSlider(0, 1, 0, .1)
   randomize_slider.parent(randomize_label)
   framerate_label = createDiv('Framerate');
   framerate_slider = createSlider(1, 60, 60, 1)
   framerate_slider.parent(framerate_label)
+
+  // Set headers from storage
   document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
   document.getElementById("training-counter").innerText = "- Trained: " + parseInt(window.localStorage.getItem("training"));
   document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"));
+  document.getElementById("graph").style.visibility = "hidden"
   if (userInput) {
+    // Hide buttons
     document.getElementById("reset").style.visibility = "hidden"
     document.getElementById("graph").style.visibility = "hidden"
+    
   }
   else {
+    // Create qlearner and set brain to brain informaiton saved in storage
     qlearner = new QLearner(realsnake, apple);
     downloadBrain()
+
+    // Create event listeners for clicking buttons
     document.getElementById("reset").onclick = resetJimmy
     document.getElementById("graph").onclick = graph
   }
@@ -335,14 +366,15 @@ function setup() {
   console.log(n.predict([0, 0]));
   */
 
+  // Create canvas and set framerate
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
-  fr = userInput ? 10 : 50;
   frameRate(framerate_slider.value());
   restartGame();
 }
 
 function draw() {
+  // Set framerate every frame
   frameRate(framerate_slider.value())
   m++;
   let oldState = null;
@@ -419,7 +451,6 @@ function draw() {
     } else {
       window.localStorage.setItem("brain", JSON.stringify(qlearner.brain))
       genCount++;
-      //realsnake.move(); ???????????????
       restartGame();
       return;
     }
