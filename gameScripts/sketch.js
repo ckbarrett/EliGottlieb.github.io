@@ -37,10 +37,6 @@ function resetJimmy() {
   window.localStorage.setItem("highscore", 0)
   window.localStorage.setItem("training", 0)
   window.localStorage.setItem("sets", 0)
-  window.localStorage.setItem("graphset1", JSON.stringify([]))
-  window.localStorage.setItem("graphset2", JSON.stringify([]))
-  window.localStorage.setItem("graphset3", JSON.stringify([]))
-  window.localStorage.setItem("graphset4", JSON.stringify([]))
 
   // Reset HTML elements
   document.getElementById("training-counter").innerText = "- Trained: " + 0;
@@ -56,14 +52,20 @@ function resetJimmy() {
 
 // Create graph in HTML
 function graph() {
-  let set1 = JSON.parse(window.localStorage.getItem("graphset1"))
-  let set2 = JSON.parse(window.localStorage.getItem("graphset2"))
-  let set3 = JSON.parse(window.localStorage.getItem("graphset3"))
+  trialmarkers = []
   for (let i = 0; i < set1.length; i++) {
     trialmarkers.push(i)
   }
-  Plotly.react('myDiv', [{ x: trialmarkers, y: set1 }, { x: trialmarkers, y: set2 }, { x: trialmarkers, y: set3 }])
+  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1 }, { x: trialmarkers, y: set2 }, { x: trialmarkers, y: set3 }, { x: trialmarkers, y: set4 }])
+  document.getElementById("myDiv").style.display = "block";
+  document.getElementById("hidegraph").style.visibility = "visible";
   console.log("graphed")
+}
+
+function hidegraph() {
+  document.getElementById("myDiv").style.display = "none";
+  document.getElementById("hidegraph").style.visibility = "hidden"
+  document.getElementById("graph").style.visibility = "visible";
 }
 
 function drawSquare(square, clr) {
@@ -288,7 +290,7 @@ function onBottomEdge() {
   else return false;
 }
 
-function createSliders(){
+function createSliders() {
   // Create outside div
   let slider_div = createDiv();
   slider_div.elt.style.display = "flex"
@@ -360,6 +362,7 @@ function setup() {
     document.getElementById("highscore").innerText = highscore
     document.getElementById("reset").style.visibility = "hidden"
     document.getElementById("graph").style.visibility = "hidden"
+    document.getElementById("hidegraph").style.visibility = "hidden"
     frameRate(30)
   }
   else {
@@ -373,9 +376,10 @@ function setup() {
     frameRate(framerate_slider.value());
 
     // Set headers from storage
+    document.getElementById("hidegraph").style.visibility = "hidden"
     document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
-    document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"));
-    document.getElementById("training-counter").innerText = "- Training: " + parseInt(window.localStorage.getItem("training"));
+    document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"))
+    document.getElementById("training-counter").innerText = "- Training: " + parseInt(window.localStorage.getItem("training"))
 
     // Create qlearner and set brain to brain informaiton saved in storage
     qlearner = new QLearner(realsnake, apple);
@@ -384,6 +388,7 @@ function setup() {
     // Create event listeners for clicking buttons
     document.getElementById("reset").onclick = resetJimmy
     document.getElementById("graph").onclick = graph
+    document.getElementById("hidegraph").onclick = hidegraph
   }
 
   // Create canvas and set framerate
