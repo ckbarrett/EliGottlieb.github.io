@@ -376,13 +376,7 @@ function setup() {
   }
   else {
     // Create labels and sliders for randomness and framerate
-    randomize_label = createDiv('Randomness');
-    randomize_slider = createSlider(0, 1, 0, .1)
-    randomize_slider.parent(randomize_label)
-    framerate_label = createDiv('Framerate');
-    framerate_slider = createSlider(1, 60, 60, 1)
-    framerate_slider.parent(framerate_label)
-    frameRate(framerate_slider.value());
+    createSliders()
 
     // Set headers from storage
     document.getElementById("hidegraph").style.visibility = "hidden"
