@@ -185,7 +185,8 @@ function calculateCanvasSize() {
   // Extra width and height will be split automatically when canvas is centered
   let extraWidth = (window.innerWidth % (xOffset + squareWidth)) + xOffset;
   let canvasWidth = window.innerWidth - extraWidth;
-  let extraHeight = (window.innerHeight % (yOffset + squareWidth)) + yOffset;
+  let extraHeightBuffer = (squareWidth + yOffset);
+  let extraHeight = (window.innerHeight % (yOffset + squareWidth)) + yOffset + extraHeightBuffer;
   let canvasHeight = window.innerHeight - extraHeight;
   return { canvasWidth, canvasHeight };
 }
@@ -291,6 +292,28 @@ function onBottomEdge() {
   else return false;
 }
 
+function createSliders(){
+  // Create outside div
+  let slider_div = createDiv();
+  slider_div.elt.style.display = "flex"
+  // Create randomness label
+  randomize_label = createSpan('Randomness: ');
+  randomize_label.parent(slider_div);
+  randomize_label.elt.style.flex = "1"
+  // Create randomness slider
+  randomize_slider = createSlider(0, 1, 0, .1)
+  randomize_slider.parent(slider_div)
+  randomize_slider.elt.style.flex = "1"
+  randomize_slider.elt.style.marginRight = "20px"
+  // Create framerate label
+  framerate_label = createSpan('Framerate: ');
+  framerate_label.parent(slider_div)
+  framerate_label.elt.style.flex = "1"
+  // Create framerate slider
+  framerate_slider = createSlider(1, 60, 60, 1)
+  framerate_slider.parent(slider_div)
+  framerate_slider.elt.style.flex = "1"
+}
 
 ///////////////// End Util Functions /////////////////////////////////////////
 
@@ -321,13 +344,7 @@ let training_data = [{
 
 
 function setup() {
-  // Create labels and sliders for randomness and framerate
-  randomize_label = createDiv('Randomness');
-  randomize_slider = createSlider(0, 1, 0, .1)
-  randomize_slider.parent(randomize_label)
-  framerate_label = createDiv('Framerate');
-  framerate_slider = createSlider(1, 60, 60, 1)
-  framerate_slider.parent(framerate_label)
+  createSliders();
 
   // Set headers from storage
   document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
