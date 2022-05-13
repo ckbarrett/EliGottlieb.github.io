@@ -9,7 +9,20 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 
-<body>
+<h1 >
+  <span>Score: </span>
+  <var id="score-counter"> 0 </var>
+  <span id="generation-counter"> </span>
+  <span id="set-counter"> </span>
+  <span id="training-counter"> </span>
+  <span>- High Score: </span>
+  <var id="highscore"> 0 </var>
+  <button type="button" id="reset">Wipe Jimmy :(</button>
+  <button type="botton" id="graph">Graph Stuff</button>
+  <button type="botton" id="hidegraph">Hide Graph</button>
+</h1>
+
+<body >
   <script src="p5/p5.js"></script>
   <!-- <script src="../addons/p5.sound.js"></script> -->
   <script src="gameScripts/square.js"></script>
@@ -21,19 +34,7 @@
   <script src="gameScripts/AI/Matrix.js"></script>
   <script src="gameScripts/AI/qlearning.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.11.1.min.js"></script>
-  <div>
-    <span>Score: </span>
-    <var id="score-counter"> 0 </var>
-    <span id="generation-counter"> </span>
-    <span id="set-counter"> </span>
-    <span id="training-counter"> </span>
-    <span>- High Score: </span>
-    <var id="highscore"> 0 </var>
-    <button type="button" id="reset">Wipe Jimmy :(</button> 
-    <button type="botton" id="graph">Graph Stuff</button>
-    <button type="botton" id="hidegraph">Hide Graph</button>
-</div>
-<div id='myDiv'></div>
+  <div id='myDiv'></div>
 </body>
 
 </html>
