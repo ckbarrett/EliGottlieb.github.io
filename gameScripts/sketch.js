@@ -185,7 +185,8 @@ function calculateCanvasSize() {
   // Extra width and height will be split automatically when canvas is centered
   let extraWidth = (window.innerWidth % (xOffset + squareWidth)) + xOffset;
   let canvasWidth = window.innerWidth - extraWidth;
-  let extraHeight = (window.innerHeight % (yOffset + squareWidth)) + yOffset + 70;
+  let extraHeightBuffer = (squareWidth + yOffset);
+  let extraHeight = (window.innerHeight % (yOffset + squareWidth)) + yOffset + extraHeightBuffer;
   let canvasHeight = window.innerHeight - extraHeight;
   return { canvasWidth, canvasHeight };
 }
@@ -287,6 +288,28 @@ function onBottomEdge() {
   else return false;
 }
 
+function createSliders(){
+  // Create outside div
+  let slider_div = createDiv();
+  slider_div.elt.style.display = "flex"
+  // Create randomness label
+  randomize_label = createSpan('Randomness: ');
+  randomize_label.parent(slider_div);
+  randomize_label.elt.style.flex = "1"
+  // Create randomness slider
+  randomize_slider = createSlider(0, 1, 0, .1)
+  randomize_slider.parent(slider_div)
+  randomize_slider.elt.style.flex = "1"
+  randomize_slider.elt.style.marginRight = "20px"
+  // Create framerate label
+  framerate_label = createSpan('Framerate: ');
+  framerate_label.parent(slider_div)
+  framerate_label.elt.style.flex = "1"
+  // Create framerate slider
+  framerate_slider = createSlider(1, 60, 60, 1)
+  framerate_slider.parent(slider_div)
+  framerate_slider.elt.style.flex = "1"
+}
 
 ///////////////// End Util Functions /////////////////////////////////////////
 
@@ -447,7 +470,7 @@ function draw() {
   else {
     // Check if eating apple to update score. Reward does not need to be updated as all possible rewards for moves have already been calculated
     checkEatingApple(realsnake, false)
-    
+
     // Update qlearner's brain
     // Check for collisions and end game
     checkCollisions(realsnake, false)
