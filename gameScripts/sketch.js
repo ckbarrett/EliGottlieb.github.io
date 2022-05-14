@@ -8,7 +8,7 @@ var realsnake;
 let apple;
 var gameOver = false;
 let inputUsed = false;
-let userInput = false;
+let userInput = true;
 var score = 0;
 let userhighscore = 0;
 let genCount = 1;
@@ -28,24 +28,37 @@ var sets = 0;
 var hiddenLayerSize = 60;
 var qlearner;
 var contGraph;
+var slider_div
 
 ///////////////// Util Functions ///////////////////////
 function toggleJimmy() {
   if (userInput) {
     userInput = false
-    document.getElementById("graph").style.visibility = "visible";
-    document.getElementById("generation-counter").style.visibility = "visible";
-    document.getElementById("set-counter").style.visibility = "visible";
-    document.getElementById("training-counter").style.visibility = "visible";
+    document.getElementById("jimmyinfo").style.display = "flex"
+    slider_div.style("display", "flex")
+    document.getElementById("hidegraph").style.display = "none"
+
+    // Set headers from storage
+    document.getElementById("hidegraph").style.display = "none"
+    document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
+    document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"))
+    document.getElementById("training-counter").innerText = "- Training: " + parseInt(window.localStorage.getItem("training"))
+
+    // Create qlearner and set brain to brain informaiton saved in storage
+    qlearner = new QLearner(realsnake, apple);
+    downloadBrain()
+
+    // Create event listeners for clicking buttons
+    document.getElementById("togglejimmy").onclick = toggleJimmy
+    document.getElementById("reset").onclick = resetJimmy
+    document.getElementById("graph").onclick = livegraph
+    document.getElementById("hidegraph").onclick = hidegraph
     restartGame()
   }
   else {
+    document.getElementById("jimmyinfo").style.display = "none"
     userInput = true;
-    document.getElementById("hidegraph").style.visibility = "hidden"
-    document.getElementById("graph").style.visibility = "hidden";
-    document.getElementById("generation-counter").style.visibility = "hidden";
-    document.getElementById("set-counter").style.visibility = "hidden";
-    document.getElementById("training-counter").style.visibility = "hidden";
+    slider_div.style("display", "none")
     highscore = 0;
     document.getElementById("highscore").innerText = highscore
     frameRate(30)
@@ -71,11 +84,11 @@ function resetJimmy() {
   // Create new brain and overwrite old brain
   qlearner.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
   uploadBrain()
-  location.reload();
+  restartGame()
 }
 
 function livegraph() {
-  document.getElementById("graph").style.visibility = "hidden";
+  document.getElementById("graph").style.display = "none";
   graph()
   contGraph = window.setInterval(graph, 2000);
 }
@@ -87,17 +100,17 @@ function graph() {
     trialmarkers.push(i)
   }
   //Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1, name: "Output Errors"}, { x: trialmarkers, y: set2, name: "H2 Errors" }, { x: trialmarkers, y: set3, name: "H1 Errors" }])
-  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3}], {title: {text: "Errors vs. Training Data"} })
+  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3 }], { title: { text: "Errors vs. Training Data" } })
   document.getElementById("myDiv").style.display = "block";
-  document.getElementById("hidegraph").style.visibility = "visible";
+  document.getElementById("hidegraph").style.display = "flex";
   console.log("graphed")
 }
 
 function hidegraph() {
   clearInterval(contGraph)
   document.getElementById("myDiv").style.display = "none";
-  document.getElementById("hidegraph").style.visibility = "hidden"
-  document.getElementById("graph").style.visibility = "visible";
+  document.getElementById("hidegraph").style.display = "none"
+  document.getElementById("graph").style.display = "flex";
 }
 
 function drawSquare(square, clr) {
@@ -266,7 +279,7 @@ function restartGame() {
     let globalgencount = parseInt(window.localStorage.getItem("age"))
     globalgencount++;
     window.localStorage.setItem("age", globalgencount)
-    document.getElementById("generation-counter").innerText = "- Jimmy's: " + globalgencount;
+    document.getElementById("generation-counter").innerText = "Jimmy's: " + globalgencount;
     // Upload brain to save on death
     uploadBrain()
   }
@@ -324,25 +337,25 @@ function onBottomEdge() {
 
 function createSliders() {
   // Create outside div
-  let slider_div = createDiv();
+  slider_div = createDiv();
   slider_div.elt.style.display = "flex"
   // Create randomness label
   randomize_label = createSpan('Randomness: ');
   randomize_label.parent(slider_div);
-  randomize_label.elt.style.flex = "1"
+  randomize_label.elt.style.flex = 1
   // Create randomness slider
   randomize_slider = createSlider(0, 1, 0, .1)
   randomize_slider.parent(slider_div)
-  randomize_slider.elt.style.flex = "1"
+  randomize_slider.elt.style.flex = 1
   randomize_slider.elt.style.marginRight = "20px"
   // Create framerate label
   framerate_label = createSpan('Framerate: ');
   framerate_label.parent(slider_div)
-  framerate_label.elt.style.flex = "1"
+  framerate_label.elt.style.flex = 1
   // Create framerate slider
   framerate_slider = createSlider(1, 60, 60, 1)
   framerate_slider.parent(slider_div)
-  framerate_slider.elt.style.flex = "1"
+  framerate_slider.elt.style.flex = 1
 }
 
 ///////////////// End Util Functions /////////////////////////////////////////
@@ -389,12 +402,14 @@ console.log(n.predict([0, 0]));
 
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
+  document.getElementById("togglejimmy").onclick = toggleJimmy
+  createSliders()
+
   if (userInput) {
     highscore = 0;
     document.getElementById("highscore").innerText = highscore
-    document.getElementById("reset").style.visibility = "hidden"
-    document.getElementById("graph").style.visibility = "hidden"
-    document.getElementById("hidegraph").style.visibility = "hidden"
+    slider_div.style("display", "none")
+    document.getElementById("jimmyinfo").style.display = "none"
     frameRate(30)
   }
   else {
@@ -402,7 +417,7 @@ function setup() {
     createSliders()
 
     // Set headers from storage
-    document.getElementById("hidegraph").style.visibility = "hidden"
+    document.getElementById("hidegraph").style.display = "none"
     document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
     document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"))
     document.getElementById("training-counter").innerText = "- Training: " + parseInt(window.localStorage.getItem("training"))
