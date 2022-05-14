@@ -456,10 +456,8 @@ function draw() {
     inputUsed = false;
   }
   else {
-    // Check if eating apple to update score. Reward does not need to be updated as all possible rewards for moves have already been calculated
+    // Check if eating apple
     checkEatingApple(realsnake, false)
-
-    // Update qlearner's brain
     // Check for collisions and end game
     checkCollisions(realsnake, false)
     if (gameOver) {
@@ -511,7 +509,7 @@ function windowResized() {
 }
 
 function keyPressed() {
-  if (!userInput) return;
+  if (!userInput || gameOver) return;
   switch (keyCode) {
     case UP_ARROW:
       if ((realsnake.yDir[realsnake.yDir.length - 1] != 0) || inputUsed) break;
