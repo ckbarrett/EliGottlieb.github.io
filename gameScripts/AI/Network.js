@@ -22,6 +22,18 @@ class Network {
         this.learningrate = 0.1;
     }
 
+    static copy(network) {
+        let newbrain = new Network(network.inputnodes, network.hid1_nodes, network.hid2_nodes,network.output_nodes)
+        newbrain.weights_input_h1 = network.weights_input_h1.copy()
+        newbrain.weights_h1_h2 = network.weights_h1_h2.copy()
+        newbrain.weights_h2_output = network.weights_h2_output.copy()
+        newbrain.bias_h1 = network.bias_h1.copy()
+        newbrain.bias_h2 = network.bias_h2.copy()
+        newbrain.bias_output = network.bias_output.copy()
+        newbrain.learningrate = network.learningrate
+        return newbrain
+    }
+
     predict(input_array) {
         // Calculate raw hidden1 activation
         let inputs = Matrix.fromArray(input_array);

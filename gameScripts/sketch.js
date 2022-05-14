@@ -33,8 +33,8 @@ var slider_div
 function toggleJimmy() {
   if (userInput) {
     userInput = false
-    document.getElementById("jimmyinfo").style.display = "flex"
-    slider_div.style("display", "flex")
+    document.getElementById("jimmyinfo").style.display = "block"
+    slider_div.style("display", "block")
     document.getElementById("hidegraph").style.display = "none"
 
     // Set headers from storage
@@ -56,6 +56,7 @@ function toggleJimmy() {
   }
   else {
     userInput = true;
+    hidegraph()
     document.getElementById("jimmyinfo").style.display = "none"
     slider_div.style("display", "none")
     highscore = 0;
@@ -102,7 +103,7 @@ function graph() {
   //Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1, name: "Output Errors"}, { x: trialmarkers, y: set2, name: "H2 Errors" }, { x: trialmarkers, y: set3, name: "H1 Errors" }])
   Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3 }], { title: { text: "Errors vs. Training Data" } })
   document.getElementById("myDiv").style.display = "block";
-  document.getElementById("hidegraph").style.display = "flex";
+  document.getElementById("hidegraph").style.display = "block";
   console.log("graphed")
 }
 
@@ -111,14 +112,14 @@ function hidegraph() {
   clearInterval(contGraph)
   document.getElementById("myDiv").style.display = "none";
   document.getElementById("hidegraph").style.display = "none"
-  document.getElementById("graph").style.display = "flex";
+  document.getElementById("graph").style.display = "block";
 }
 
 // Create randomness and framerate sliders
 function createSliders() {
   // Create outside div
   slider_div = createDiv();
-  slider_div.elt.style.display = "flex"
+  slider_div.elt.style.display = "block"
   // Create randomness label
   randomize_label = createSpan('Randomness: ');
   randomize_label.parent(slider_div);
