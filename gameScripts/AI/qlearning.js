@@ -22,7 +22,7 @@ let qDiscountFactor = 0.85;
 class QLearner {
     constructor(sn, apple) {
         this.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
-        this.targetbrain = Network.copy(this.brain)
+        this.targetbrain = this.brain
         this.snake = sn;
         this.apple = apple;
         this.availableActions = ['up', 'down', 'left', 'right'];
@@ -165,8 +165,8 @@ class QLearner {
             } else {
                 // newValue = reward + discount factor * estimate of optimal future value - old q value
                 // newValue = reward for going a direction + discount factor * estimate of optimal future value after going that direction - current q value of going that direction 
-                newValue = futurerewards[i] + qDiscountFactor * max(this.targetbrain.predict(futurestates[i].toArray())) - max(this.targetbrain.predict(state0.toArray()));
-                newQs.push(sigmoid(max(this.targetbrain.predict(state0.toArray())) + qLearningRate * newValue));
+                newValue = futurerewards[i] + qDiscountFactor * max(this.brain.predict(futurestates[i].toArray())) - max(this.brain.predict(state0.toArray()));
+                newQs.push(sigmoid(max(this.brain.predict(state0.toArray())) + qLearningRate * newValue));
             }
             
         }
@@ -190,7 +190,8 @@ class QLearner {
         }
 
         // Check to see if the network should train, 60 unique states saved or 250 moves since last train
-        if (Object.keys(this.experienceRelay).length > 60 || this.moves % 250 == 0) {
+        if (Object.keys(this.experienceRelay).length > 60 || this.moves > 250) {
+
             // Update global set counter
             let globaltrainingcount = parseInt(window.localStorage.getItem("training"))
             globaltrainingcount += Object.keys(this.experienceRelay).length
@@ -210,12 +211,10 @@ class QLearner {
                 let qvals = this.experienceRelay[tempkey]
                 this.brain.train(tempstate, qvals)
             }
+
             // Reset memory and move counter
             this.experienceRelay = {}
-        }
-        if (this.moves % 1000 == 0)
-        {
-            this.brain = Network.copy(this.targetbrain)
+            this.moves = 0;
         }
     }
 
