@@ -22,6 +22,7 @@ let qDiscountFactor = 0.85;
 class QLearner {
     constructor(sn, apple) {
         this.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
+        this.targetbrain = this.brain
         this.snake = sn;
         this.apple = apple;
         this.availableActions = ['up', 'down', 'left', 'right'];

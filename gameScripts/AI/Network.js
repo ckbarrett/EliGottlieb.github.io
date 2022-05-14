@@ -97,8 +97,6 @@ class Network {
 
             let currentWeights_T = Matrix.transpose(weights[gapIndex])
             errs = Matrix.multiply(currentWeights_T, errs)
-            //if(errs.toArray()[0]>10)
-              //  console.log(errs.toArray()[0])
             set123[gapIndex] = errs.toArray()[0]
         }
         // Save new weights and biases within the network
@@ -109,7 +107,6 @@ class Network {
         this.bias_h1 = biases[0];
         this.bias_h2 = biases[1];
         this.bias_output = biases[2]
-        //console.log(set123)
         set1.push(set123[0])
         set2.push(set123[1])
     }
