@@ -33,6 +33,7 @@ var slider_div
 function toggleJimmy() {
   if (userInput) {
     userInput = false
+    hidegraph
     document.getElementById("jimmyinfo").style.display = "flex"
     slider_div.style("display", "flex")
     document.getElementById("hidegraph").style.display = "none"
@@ -56,6 +57,7 @@ function toggleJimmy() {
   }
   else {
     userInput = true;
+    hidegraph()
     document.getElementById("jimmyinfo").style.display = "none"
     slider_div.style("display", "none")
     highscore = 0;
