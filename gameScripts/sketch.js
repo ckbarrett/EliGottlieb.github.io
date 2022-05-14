@@ -30,6 +30,29 @@ var qlearner;
 var contGraph;
 
 ///////////////// Util Functions ///////////////////////
+function toggleJimmy() {
+  if (userInput) {
+    userInput = false
+    document.getElementById("graph").style.visibility = "visible";
+    document.getElementById("generation-counter").style.visibility = "visible";
+    document.getElementById("set-counter").style.visibility = "visible";
+    document.getElementById("training-counter").style.visibility = "visible";
+    restartGame()
+  }
+  else {
+    userInput = true;
+    document.getElementById("hidegraph").style.visibility = "hidden"
+    document.getElementById("graph").style.visibility = "hidden";
+    document.getElementById("generation-counter").style.visibility = "hidden";
+    document.getElementById("set-counter").style.visibility = "hidden";
+    document.getElementById("training-counter").style.visibility = "hidden";
+    highscore = 0;
+    document.getElementById("highscore").innerText = highscore
+    frameRate(30)
+    restartGame()
+  }
+}
+
 // Hard reset storage to restart the learning processes
 function resetJimmy() {
   console.log("Jimmy has been wiped.")
@@ -64,7 +87,7 @@ function graph() {
     trialmarkers.push(i)
   }
   //Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1, name: "Output Errors"}, { x: trialmarkers, y: set2, name: "H2 Errors" }, { x: trialmarkers, y: set3, name: "H1 Errors" }])
-  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3, name: "Output Errors"}])
+  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3, name: "Output Errors" }])
   document.getElementById("myDiv").style.display = "block";
   document.getElementById("hidegraph").style.visibility = "visible";
   console.log("graphed")
@@ -389,6 +412,7 @@ function setup() {
     downloadBrain()
 
     // Create event listeners for clicking buttons
+    document.getElementById("togglejimmy").onclick = toggleJimmy
     document.getElementById("reset").onclick = resetJimmy
     document.getElementById("graph").onclick = livegraph
     document.getElementById("hidegraph").onclick = hidegraph
