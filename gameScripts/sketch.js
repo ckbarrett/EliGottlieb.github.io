@@ -87,7 +87,7 @@ function graph() {
     trialmarkers.push(i)
   }
   //Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1, name: "Output Errors"}, { x: trialmarkers, y: set2, name: "H2 Errors" }, { x: trialmarkers, y: set3, name: "H1 Errors" }])
-  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3, name: "Output Errors" }])
+  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3}], {title: {text: "Errors vs. Training Data"} })
   document.getElementById("myDiv").style.display = "block";
   document.getElementById("hidegraph").style.visibility = "visible";
   console.log("graphed")

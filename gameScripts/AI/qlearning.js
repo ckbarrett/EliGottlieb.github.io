@@ -160,12 +160,14 @@ class QLearner {
             let newValue;
             if (dones[i]) {
                 newValue = futurerewards[i];
+                newQs.push(sigmoid(futurerewards[i]))
             } else {
                 // newValue = reward + discount factor * estimate of optimal future value - old q value
                 // newValue = reward for going a direction + discount factor * estimate of optimal future value after going that direction - current q value of going that direction 
                 newValue = futurerewards[i] + qDiscountFactor * max(this.brain.predict(futurestates[i].toArray())) - max(this.brain.predict(state0.toArray()));
+                newQs.push(sigmoid(max(this.brain.predict(state0.toArray())) + qLearningRate * newValue));
             }
-            newQs.push(sigmoid(max(this.brain.predict(state0.toArray())) + qLearningRate * newValue));
+            
         }
 
         // Now that we have q values for each move off of the current state, store them in memory
