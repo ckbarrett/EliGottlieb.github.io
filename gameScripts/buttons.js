@@ -6,6 +6,8 @@ function toggleJimmy() {
             document.getElementById("jimmyinfo").style.display = "flex"
             slider_div.style("display", "flex")
             document.getElementById("hidegraph").style.display = "none"
+            document.getElementById("pause").style.display = "flex"
+            document.getElementById("play").style.display = "none"
 
             // Set headers from storage
             document.getElementById("hidegraph").style.display = "none"
@@ -69,7 +71,7 @@ function graph() {
       }
       //Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1, name: "Output Errors"}, { x: trialmarkers, y: set2, name: "H2 Errors" }, { x: trialmarkers, y: set3, name: "H1 Errors" }])
       Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3 }], { title: { text: "Errors vs. Training Data" } })
-      document.getElementById("myDiv").style.display = "block";
+      document.getElementById("myDiv").style.display = "flex";
       document.getElementById("hidegraph").style.display = "flex";
       console.log("graphed")
 }
@@ -106,11 +108,26 @@ function createSliders() {
       framerate_slider.elt.style.flex = 1
 }
 
+function pauseJimmy() {
+      frameRate(0)
+      document.getElementById("pause").style.display = "none"
+      document.getElementById("play").style.display = "flex"
+}
+
+function playJimmy() {
+      frameRate(framerate)
+      document.getElementById("pause").style.display = "flex"
+      document.getElementById("play").style.display = "none"
+}
+
 // Create event listeners and onclick functions for all buttons
 function setButtons() {
       document.getElementById("togglejimmy").onclick = toggleJimmy
       document.getElementById("reset").onclick = resetJimmy
       document.getElementById("graph").onclick = livegraph
       document.getElementById("hidegraph").onclick = hidegraph
+      document.getElementById("pause").onclick = pauseJimmy
+      document.getElementById("play").onclick = playJimmy
+      
 }
     ///////////////// End Button Functions /////////////////////

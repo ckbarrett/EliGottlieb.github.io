@@ -27,6 +27,7 @@ var hiddenLayerSize = 60;
 var qlearner;
 var contGraph;
 var slider_div
+var framerate;
 
 ///////////////// Util Functions /////////////////////
 function checkCollisions(sn) {
@@ -149,18 +150,20 @@ function setup() {
 
   if (userInput) {
     highscore = 0;
-    document.getElementById("highscore").innerText = highscore
+    document.getElementById("highscore").innerText = highscorew
     slider_div.style("display", "none")
     document.getElementById("jimmyinfo").style.display = "none"
     frameRate(30)
+    framerate = 30;
   }
   else {
     // Set headers from storage
+    document.getElementById("jimmyinfo").style.display = "flex"
     document.getElementById("hidegraph").style.display = "none"
+    document.getElementById("play").style.display = "none"
     document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
     document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"))
     document.getElementById("training-counter").innerText = "- Training: " + parseInt(window.localStorage.getItem("training"))
-
     // Create qlearner and set brain to brain informaiton saved in storage
     qlearner = new QLearner(realsnake, apple);
     downloadBrain()
@@ -178,7 +181,8 @@ function draw() {
     let oldState = qlearner.getCurrentState();;
     let oldStateArray= oldState.toArray()
     let bestaction = null;
-    frameRate(framerate_slider.value())
+    framerate = framerate_slider.value()
+    frameRate(framerate)
     qlearner.randomize = randomize_slider.value()
 
     // Initialize sim information
