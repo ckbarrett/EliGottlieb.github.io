@@ -12,7 +12,18 @@ class Snake {
     this.oldTailyDir = 0;
     this.xDir = [1, 1, 1];
     this.yDir = [0, 0, 0];
+    this.color = color(128, 80, 200)
+    this.randomizeColor()
     this.count = 0;
+  }
+
+  randomizeColor() {
+    let colors = [0, 0, 0]
+    let firstColor = Math.floor(Math.random() * 3)
+    colors[firstColor] = 255;
+    let secondColor = (firstColor + 1) % 3
+    colors[secondColor] = Math.floor(Math.random() * 256)
+    this.color = color(colors[0], colors[1], colors[2])
   }
 
   // Return a deep copy of Snake sn
@@ -20,14 +31,14 @@ class Snake {
     let newsnake = new Snake()
     let tempsquares = []
     let tempsquare = new Square()
-    for(let i = 0; i < sn.squares.length; i++) {
+    for (let i = 0; i < sn.squares.length; i++) {
       tempsquare = new Square()
       tempsquare = Square.copySquare(sn.squares[i])
       tempsquares[i] = tempsquare
     }
     newsnake.squares = tempsquares
-    newsnake.head = tempsquares[tempsquares.length-1]
-    if(sn.oldTail != null){
+    newsnake.head = tempsquares[tempsquares.length - 1]
+    if (sn.oldTail != null) {
       tempsquare = new Square()
       tempsquare = Square.copySquare(sn.oldTail)
       newsnake.oldTail = tempsquare;
