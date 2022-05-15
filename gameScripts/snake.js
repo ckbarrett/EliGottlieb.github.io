@@ -13,6 +13,7 @@ class Snake {
     this.xDir = [1, 1, 1];
     this.yDir = [0, 0, 0];
     this.color = color(128, 80, 200)
+    this.randomizeColor()
     this.count = 0;
   }
 
