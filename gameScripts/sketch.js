@@ -6,7 +6,7 @@ var realsnake;
 var apple;
 var gameOver = false;
 var inputUsed = false;
-var userInput = true;
+var userInput = false;
 var score = 0;
 var userhighscore = 0;
 var genCount = 1;
@@ -143,8 +143,10 @@ function onBottomEdge() {
 
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
+  // Setup for buttons and sliders
   setButtons()
   createSliders()
+
   if (userInput) {
     highscore = 0;
     document.getElementById("highscore").innerText = highscore
@@ -172,55 +174,54 @@ function setup() {
 
 function draw() {
   if (!userInput) {
-    // initialize and read slider values
-    let oldState = null;
+    // Prepare for simulation, read sliders
+    let oldState = qlearner.getCurrentState();;
+    let oldStateArray= oldState.toArray()
     let bestaction = null;
     frameRate(framerate_slider.value())
     qlearner.randomize = randomize_slider.value()
 
-    // Prepare to simulate and initialize move information
-    oldState = qlearner.getCurrentState();
+    // Initialize sim information
     var actionList = ['up', 'down', 'left', 'right']
     var rewardList = [safeReward, safeReward, safeReward, safeReward]
     var newstates = [0, 0, 0, 0]
     var dones = [false, false, false, false]
     var savedsnake;
+
     for (let i = 0; i < actionList.length; i++) {
-      // Copy realsnake into savedsnake in order to simulate moves with savedsnake
-      // Set qlearner's snake to savedsnake to get the state after actions are performed
+      // Reassign the "active" snake as the reset savedsnake
       savedsnake = Snake.copy(realsnake)
       qlearner.snake = savedsnake
 
-      // Calculate reward and dones for actionList[i]
-      // doAction calls the corresponding goUp, goDown, goLeft, goRight which changes savedsnake's attributes
+      // Perform the action
       doAction(actionList[i], savedsnake)
 
-      // checkEatingApple will not move the apple if true because the second parameter represents a simulated move
+      // checkEatingApple but with the sim parameter as true as to not move the apple
       if (checkEatingApple(savedsnake, true)) {
         rewardList[i] = appleReward
       }
 
-      // checkCollisions
-      if (actionList[i] == 'up' && oldState.toArray()[0] == 1) {
+      // Check is the simulated move results in a death
+      if (actionList[i] == 'up' && oldStateArray[0] == 1) {
         rewardList[i] = deathReward
-        dones[i] = true
       }
-      else if (actionList[i] == 'down' && oldState.toArray()[1] == 1) {
+      else if (actionList[i] == 'down' && oldStateArray[1] == 1) {
         rewardList[i] = deathReward
-        dones[i] = true
       }
-      else if (actionList[i] == 'left' && oldState.toArray()[2] == 1) {
+      else if (actionList[i] == 'left' && oldStateArray[2] == 1) {
         rewardList[i] = deathReward
-        dones[i] = true
       }
-      else if (actionList[i] == 'right' && oldState.toArray()[3] == 1) {
+      else if (actionList[i] == 'right' && oldStateArray[3] == 1) {
         rewardList[i] = deathReward
-        dones[i] = true
       }
+
+      if(rewardList[i] == deathReward) {
+        dones[i] = true;
+      }
+
+      // Move savedsnake based on the action in order to calculate distance
       savedsnake.move()
       newstates[i] = qlearner.getCurrentState()
-
-      // Reward moving closer to apple
       let distanceIndex = 12;
       if (newstates[i].toArray()[distanceIndex] < oldState.toArray()[distanceIndex]) {
         rewardList[i]++;
@@ -233,14 +234,18 @@ function draw() {
     // Get best action and do the action
     bestaction = qlearner.bestAction(oldState);
     doAction(bestaction, realsnake);
-    checkEatingApple(realsnake, false)
     qlearner.updateBrain(oldState, newstates, rewardList, dones);
+
+    // Check apple and collisions
+    checkEatingApple(realsnake, false)
     checkCollisions(realsnake, false)
     if (gameOver) {
       genCount++;
       restartGame();
       return;
     }
+
+    // Update the game
     realsnake.move();
     drawSnake();
     inputUsed = false;
@@ -248,7 +253,8 @@ function draw() {
   else {
     // Check if eating apple
     checkEatingApple(realsnake, false)
-    // Check for collisions and end game
+
+    // Check for collisions
     checkCollisions(realsnake, false)
     if (gameOver) {
       drawPlayAgainButton();
@@ -263,22 +269,27 @@ function draw() {
 }
 
 function restartGame() {
+  // Reset snake and apple
   realsnake = new Snake();
   apple = new Apple();
+
   if (!userInput) {
     savedsnake = new Snake();
-    // Reset snake and apple
+    // Re-save snake and apple
     qlearner.snake = realsnake;
     qlearner.apple = apple;
+
     // Update generation counter in storage and HTML element
     let globalgencount = parseInt(window.localStorage.getItem("age"))
     globalgencount++;
     window.localStorage.setItem("age", globalgencount)
     document.getElementById("generation-counter").innerText = "Jimmy's: " + globalgencount;
-    // Upload brain to save on death
+
+    // Upload brain to save learning progress
     uploadBrain()
   }
-  // Reset score to 0
+
+  // Reset score to 0 and redraw 
   resetscore = 0;
   score = resetscore
   document.getElementById("score-counter").innerText = resetscore;
@@ -286,15 +297,6 @@ function restartGame() {
   drawSnakeComplete();
   drawSquare(apple.square, color(255, 0, 0));
   gameOver = false;
-}
-
-function windowResized() {
-  let dimensions = calculateCanvasSize();
-  resizeCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
-  background(255);
-  drawSnakeComplete();
-  apple.square = apple.getRandomSquare();
-  drawSquare(apple.square, color(255, 0, 0));
 }
 
 function keyPressed() {

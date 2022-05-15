@@ -195,6 +195,8 @@ class QLearner {
                 this.brain.train(tempstate, qvals)
             }
 
+            this.snake.randomizeColor()
+
             // Reset memory
             this.experienceRelay = {}
             this.moves = 0;

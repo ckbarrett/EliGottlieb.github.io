@@ -101,7 +101,7 @@ function createSliders() {
       framerate_label.parent(slider_div)
       framerate_label.elt.style.flex = 1
       // Create framerate slider
-      framerate_slider = createSlider(1, 60, 60, 1)
+      framerate_slider = createSlider(1, 60, 30, 1)
       framerate_slider.parent(slider_div)
       framerate_slider.elt.style.flex = 1
 }
