@@ -1,17 +1,17 @@
-let squareWidth = 20;
-let xOffset = 5;
-let yOffset = 5;
-let fr;
+var squareWidth = 20;
+var xOffset = 5;
+var yOffset = 5;
+var fr;
 var realsnake;
-let apple;
+var apple;
 var gameOver = false;
-let inputUsed = false;
-let userInput = false;
+var inputUsed = false;
+var userInput = true;
 var score = 0;
-let userhighscore = 0;
-let genCount = 1;
-let randomize_slider;
-let speed_slider;
+var userhighscore = 0;
+var genCount = 1;
+var randomize_slider;
+var speed_slider;
 
 var set1 = []
 var set2 = []
@@ -28,185 +28,7 @@ var qlearner;
 var contGraph;
 var slider_div
 
-///////////////// Button Functions ///////////////////////
-// Change userInput and all appropriate HTML elements
-function toggleJimmy() {
-  if (userInput) {
-    userInput = false
-    hidegraph
-    document.getElementById("jimmyinfo").style.display = "flex"
-    slider_div.style("display", "flex")
-    document.getElementById("hidegraph").style.display = "none"
-
-    // Set headers from storage
-    document.getElementById("hidegraph").style.display = "none"
-    document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
-    document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"))
-    document.getElementById("training-counter").innerText = "- Training: " + parseInt(window.localStorage.getItem("training"))
-
-    // Create qlearner and set brain to brain informaiton saved in storage
-    qlearner = new QLearner(realsnake, apple);
-    downloadBrain()
-
-    // Create event listeners for clicking buttons
-    document.getElementById("togglejimmy").onclick = toggleJimmy
-    document.getElementById("reset").onclick = resetJimmy
-    document.getElementById("graph").onclick = livegraph
-    document.getElementById("hidegraph").onclick = hidegraph
-    restartGame()
-  }
-  else {
-    userInput = true;
-    hidegraph()
-    document.getElementById("jimmyinfo").style.display = "none"
-    slider_div.style("display", "none")
-    highscore = 0;
-    document.getElementById("highscore").innerText = highscore
-    frameRate(30)
-    restartGame()
-  }
-}
-
-// Hard reset storage to restart the learning processes
-function resetJimmy() {
-  console.log("Jimmy has been wiped.")
-  // Wipe storage 
-  window.localStorage.setItem("age", 0)
-  window.localStorage.setItem("highscore", 0)
-  window.localStorage.setItem("training", 0)
-  window.localStorage.setItem("sets", 0)
-
-  // Reset HTML elements
-  document.getElementById("training-counter").innerText = "- Trained: " + 0;
-  document.getElementById("set-counter").innerText = "- Sets: " + 0;
-  document.getElementById("highscore").innerText = 0;
-  document.getElementById("generation-counter").innerText = "- Jimmy's: " + 0;
-
-  // Create new brain and overwrite old brain
-  qlearner.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
-  uploadBrain()
-  restartGame()
-}
-
-// Continually graph new data 
-function livegraph() {
-  document.getElementById("graph").style.display = "none";
-  graph()
-  contGraph = window.setInterval(graph, 2000);
-}
-
-// Create graph in HTML
-function graph() {
-  trialmarkers = []
-  for (let i = 0; i < set1.length; i++) {
-    trialmarkers.push(i)
-  }
-  //Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set1, name: "Output Errors"}, { x: trialmarkers, y: set2, name: "H2 Errors" }, { x: trialmarkers, y: set3, name: "H1 Errors" }])
-  Plotly.newPlot("myDiv", [{ x: trialmarkers, y: set3 }], { title: { text: "Errors vs. Training Data" } })
-  document.getElementById("myDiv").style.display = "block";
-  document.getElementById("hidegraph").style.display = "flex";
-  console.log("graphed")
-}
-
-// High the graph
-function hidegraph() {
-  clearInterval(contGraph)
-  document.getElementById("myDiv").style.display = "none";
-  document.getElementById("hidegraph").style.display = "none"
-  document.getElementById("graph").style.display = "flex";
-}
-
-// Create randomness and framerate sliders
-function createSliders() {
-  // Create outside div
-  slider_div = createDiv();
-  slider_div.elt.style.display = "flex"
-  // Create randomness label
-  randomize_label = createSpan('Randomness: ');
-  randomize_label.parent(slider_div);
-  randomize_label.elt.style.flex = 1
-  // Create randomness slider
-  randomize_slider = createSlider(0, 1, 0, .1)
-  randomize_slider.parent(slider_div)
-  randomize_slider.elt.style.flex = 1
-  randomize_slider.elt.style.marginRight = "20px"
-  // Create framerate label
-  framerate_label = createSpan('Framerate: ');
-  framerate_label.parent(slider_div)
-  framerate_label.elt.style.flex = 1
-  // Create framerate slider
-  framerate_slider = createSlider(1, 60, 60, 1)
-  framerate_slider.parent(slider_div)
-  framerate_slider.elt.style.flex = 1
-}
-///////////////// End Button Functions /////////////////////
-
 ///////////////// Util Functions /////////////////////
-function drawSquare(square, clr) {
-  fill(clr);
-  noStroke();
-  rect(square.x, square.y, square.width, square.width);
-}
-
-function drawRect(x, y, w, h, clr) {
-  fill(clr);
-  noStroke();
-  rect(x, y, w, h);
-}
-
-function drawSnake() {
-  drawSquare(realsnake.oldTail, color(255, 255, 255));
-  drawOffset(realsnake.oldTail, realsnake.oldTailxDir, realsnake.oldTailyDir, color(255, 255, 255));
-  drawSquare(realsnake.head, color(128, 80, 200));
-  drawOffset(realsnake.squares[realsnake.squares.length - 2], realsnake.xDir[realsnake.xDir.length - 2], realsnake.yDir[realsnake.yDir.length - 2], color(128, 80, 200));
-}
-
-function drawSnakeComplete() {
-  // Draw Squares
-  for (let i = 0; i < realsnake.squares.length; i++) {
-    let tempsq = realsnake.squares[i];
-    drawSquare(tempsq, color(128, 80, 200));
-  }
-  // Fill offsets
-  for (let i = 0; i < realsnake.squares.length - 1; i++) {
-    drawOffset(realsnake.squares[i], realsnake.xDir[i], realsnake.yDir[i], color(128, 80, 200));
-  }
-}
-
-function drawOffset(sq, xDir, yDir, clr) {
-  if (xDir != 0) {
-    if (xDir == -1) {
-      // This square going left
-      drawRect(sq.x - xOffset, sq.y, xOffset, squareWidth, clr);
-    } else {
-      // This square going right
-      drawRect(sq.x + squareWidth, sq.y, xOffset, squareWidth, clr);
-    }
-  } else {
-    if (yDir == -1) {
-      // This square going up
-      drawRect(sq.x, sq.y - yOffset, squareWidth, yOffset, clr);
-    } else {
-      // This square going down
-      drawRect(sq.x, sq.y + squareWidth, squareWidth, yOffset, clr);
-    }
-  }
-}
-
-function drawPlayAgainButton() {
-  let playAgainRectWidth = 200;
-  let playAgainRectHeight = 50;
-  let playAgainx = (width - playAgainRectWidth) / 2;
-  let playAgainy = (height - playAgainRectHeight) / 2;
-  fill(color(255, 0, 0));
-  stroke(0);
-  strokeWeight(4);
-  rect(playAgainx, playAgainy, playAgainRectWidth, playAgainRectHeight);
-  textSize(32);
-  fill(0);
-  text('Play Again', playAgainx + 25, playAgainy + 35);
-}
-
 function checkCollisions(sn) {
   let gO = false;
   let xtile = (squareWidth + xOffset);
@@ -319,34 +141,10 @@ function onBottomEdge() {
 }
 ///////////////// End Util Functions /////////////////////////////////////////
 
-///////////////// Brain Functions /////////////////////////////////////////
-// Set elements in storage to corresponding brain attributes
-function uploadBrain() {
-  window.localStorage.setItem("bias_h1", JSON.stringify(qlearner.brain.bias_h1.data))
-  window.localStorage.setItem("bias_h2", JSON.stringify(qlearner.brain.bias_h2.data))
-  window.localStorage.setItem("bias_output", JSON.stringify(qlearner.brain.bias_output.data))
-  window.localStorage.setItem("weights_input_h1", JSON.stringify(qlearner.brain.weights_input_h1.data))
-  window.localStorage.setItem("weights_h1_h2", JSON.stringify(qlearner.brain.weights_h1_h2.data))
-  window.localStorage.setItem("weights_h2_output", JSON.stringify(qlearner.brain.weights_h2_output.data))
-}
-
-// Set attributes of brain to elements in storage
-function downloadBrain() {
-  qlearner.brain.bias_h1.data = JSON.parse(window.localStorage.getItem("bias_h1"))
-  qlearner.brain.bias_h2.data = JSON.parse(window.localStorage.getItem("bias_h2"))
-  qlearner.brain.bias_output.data = JSON.parse(window.localStorage.getItem("bias_output"))
-  qlearner.brain.weights_input_h1.data = JSON.parse(window.localStorage.getItem("weights_input_h1"))
-  qlearner.brain.weights_h1_h2.data = JSON.parse(window.localStorage.getItem("weights_h1_h2"))
-  qlearner.brain.weights_h2_output.data = JSON.parse(window.localStorage.getItem("weights_h2_output"))
-}
-///////////////// End Brain Functions /////////////////////////////////////////
-
-
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
-  document.getElementById("togglejimmy").onclick = toggleJimmy
+  setButtons()
   createSliders()
-
   if (userInput) {
     highscore = 0;
     document.getElementById("highscore").innerText = highscore
@@ -355,8 +153,6 @@ function setup() {
     frameRate(30)
   }
   else {
-    // Create labels and sliders for randomness and framerate
-
     // Set headers from storage
     document.getElementById("hidegraph").style.display = "none"
     document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
@@ -366,12 +162,6 @@ function setup() {
     // Create qlearner and set brain to brain informaiton saved in storage
     qlearner = new QLearner(realsnake, apple);
     downloadBrain()
-
-    // Create event listeners for clicking buttons
-    document.getElementById("togglejimmy").onclick = toggleJimmy
-    document.getElementById("reset").onclick = resetJimmy
-    document.getElementById("graph").onclick = livegraph
-    document.getElementById("hidegraph").onclick = hidegraph
   }
 
   // Create canvas
@@ -472,7 +262,6 @@ function draw() {
   }
 }
 
-// Restart game but do not hard reset learning process
 function restartGame() {
   realsnake = new Snake();
   apple = new Apple();
@@ -547,41 +336,3 @@ function mouseReleased() {
   }
 }
 ///////////////////////// End P5 Functions ///////////////////////////
-/*
-///////////////// XOR Example ////////////////////////////////////////////////
-var errors = []
-var trialmarkers = []
-var deltas = []
-
-let training_data = [{
-  inputs: [0, 0],
-  outputs: [0]
-},
-{
-  inputs: [0, 1],
-  outputs: [1]
-},
-{
-  inputs: [1, 0],
-  outputs: [1]
-},
-{
-  inputs: [1, 1],
-  outputs: [0]
-}];
-
-n = new Network(2, 32, 32, 1)
-for (let i = 0; i < 1000; i++) {
-  let data = random(training_data);
-  n.train(data.inputs, data.outputs);
-  trialmarkers.push(i)
-}
- 
-//{x: trialmarkers, y: errors}, 
-//{x: trialmarkers, y: deltas}
-Plotly.newPlot('myDiv', [{x: trialmarkers, y: errors}])
-console.log(n.predict([1, 0]));
-console.log(n.predict([0, 1]));
-console.log(n.predict([1, 1]));
-console.log(n.predict([0, 0]));
-*/

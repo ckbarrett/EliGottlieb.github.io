@@ -1,21 +1,3 @@
-/*
-let state = [
-    dangerStates:
-    danger up, danger down, 
-    danger left, danger right
-
-    directionStates:
-    direction up, direction down
-    direction left, direciton right,
-
-    foodStates:
-    food up, food down
-    food left, food right,
-]
-
-actions: 
-let actions = [up, down, left, right]
-*/
 let qLearningRate = 0.9;
 let qDiscountFactor = 0.85;
 
@@ -73,6 +55,8 @@ class QLearner {
         } else if (food.y > head.y) {
             foodDown = 1;
         }
+
+        // Get distance to apple from head
         distance = sigmoid(Math.sqrt(Math.pow(food.x - head.x, 2) + Math.pow(food.y - head.y, 2)) / 1000.0)
         let foodStates = [foodUp, foodDown, foodLeft, foodRight, distance];
 
@@ -155,16 +139,16 @@ class QLearner {
     }
 
     updateBrain(state0, futurestates, futurerewards, dones) {
-        // state0 is current state, the rest of the arrays corresponding to 'up', 'down', 'left', 'right'
+        // state0 is current state, the rest of the arrays corresponding to 'up', 'down', 'left', 'right' indecies respectively
         let newQs = []
+
+        // Calculate q values for each batch of new state, reward, and done values
         for (let i = 0; i < futurestates.length; i++) {
             let newValue;
             if (dones[i]) {
                 newValue = futurerewards[i];
                 newQs.push(sigmoid(futurerewards[i]))
             } else {
-                // newValue = reward + discount factor * estimate of optimal future value - old q value
-                // newValue = reward for going a direction + discount factor * estimate of optimal future value after going that direction - current q value of going that direction 
                 newValue = futurerewards[i] + qDiscountFactor * max(this.brain.predict(futurestates[i].toArray())) - max(this.brain.predict(state0.toArray()));
                 newQs.push(sigmoid(max(this.brain.predict(state0.toArray())) + qLearningRate * newValue));
             }
@@ -191,7 +175,6 @@ class QLearner {
 
         // Check to see if the network should train, 60 unique states saved or 250 moves since last train
         if (Object.keys(this.experienceRelay).length > 60 || this.moves > 250) {
-
             // Update global set counter
             let globaltrainingcount = parseInt(window.localStorage.getItem("training"))
             globaltrainingcount += Object.keys(this.experienceRelay).length
@@ -212,7 +195,7 @@ class QLearner {
                 this.brain.train(tempstate, qvals)
             }
 
-            // Reset memory and move counter
+            // Reset memory
             this.experienceRelay = {}
             this.moves = 0;
         }

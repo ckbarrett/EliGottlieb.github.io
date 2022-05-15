@@ -79,6 +79,7 @@ class Network {
         let layers = [inputs, hidden1, hidden2, outputs]
         let weights = [this.weights_input_h1, this.weights_h1_h2, this.weights_h2_output]
         let biases = [this.bias_h1, this.bias_h2, this.bias_output]
+
         // Iterate through layers: solve for gradient, deltas, apply gradient and deltas, solve for new errors
         for (let i = layers.length - 1; i > 0; i--) {
             let currentLayer = layers[i];
@@ -99,18 +100,43 @@ class Network {
             errs = Matrix.multiply(currentWeights_T, errs)
             set123[gapIndex] = errs.toArray()[0]
         }
+
         // Save new weights and biases within the network
         this.weights_input_h1 = weights[0];
         this.weights_h1_h2 = weights[1];
         this.weights_h2_output = weights[2];
-
         this.bias_h1 = biases[0];
         this.bias_h2 = biases[1];
         this.bias_output = biases[2]
+
+        // Save information for graphing
         set1.push(set123[0])
         set2.push(set123[1])
     }
 }
+
+///////////////// Brain Functions /////////////////////////////////////////
+// Set elements in storage to corresponding brain attributes
+function uploadBrain() {
+    window.localStorage.setItem("bias_h1", JSON.stringify(qlearner.brain.bias_h1.data))
+    window.localStorage.setItem("bias_h2", JSON.stringify(qlearner.brain.bias_h2.data))
+    window.localStorage.setItem("bias_output", JSON.stringify(qlearner.brain.bias_output.data))
+    window.localStorage.setItem("weights_input_h1", JSON.stringify(qlearner.brain.weights_input_h1.data))
+    window.localStorage.setItem("weights_h1_h2", JSON.stringify(qlearner.brain.weights_h1_h2.data))
+    window.localStorage.setItem("weights_h2_output", JSON.stringify(qlearner.brain.weights_h2_output.data))
+  }
+  
+  // Set attributes of brain to elements in storage
+  function downloadBrain() {
+    qlearner.brain.bias_h1.data = JSON.parse(window.localStorage.getItem("bias_h1"))
+    qlearner.brain.bias_h2.data = JSON.parse(window.localStorage.getItem("bias_h2"))
+    qlearner.brain.bias_output.data = JSON.parse(window.localStorage.getItem("bias_output"))
+    qlearner.brain.weights_input_h1.data = JSON.parse(window.localStorage.getItem("weights_input_h1"))
+    qlearner.brain.weights_h1_h2.data = JSON.parse(window.localStorage.getItem("weights_h1_h2"))
+    qlearner.brain.weights_h2_output.data = JSON.parse(window.localStorage.getItem("weights_h2_output"))
+  }
+  ///////////////// End Brain Functions /////////////////////////////////////////
+  
 
 // Back propogation training without a loop
         /*
