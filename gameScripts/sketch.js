@@ -230,6 +230,27 @@ function checkCollisions(sn) {
   gameOver = gO
 }
 
+function checkCollisionsForBFS(sn, sq){
+  // Define wall collisions
+  let hitRightWall = (sq.x + squareWidth >= width)
+  let hitLeftWall = (sq.x < 0)
+  let hitBottomWall = (sq.y + squareWidth >= height);
+  let hitTopWall = (sq.y < 0);
+  // Define snake collisions
+  let hittingSelf = false;
+  for (let i = 0; i < sn.squares.length - 1; i++) {
+    let tempsq = sn.squares[i];
+    if ((tempsq.x == sq.x) && (tempsq.y == sq.y)) {
+      hittingSelf = true;
+      break;
+    }
+  }
+  if (hitRightWall || hitLeftWall || hitBottomWall || hitTopWall || hittingSelf) {
+    return true;
+  }
+  return false;
+}
+
 function checkEatingApple(sn, sim) {
   if ((sn.head.x == apple.square.x) && (sn.head.y == apple.square.y)) {
     if (sim) {
@@ -316,6 +337,29 @@ function onRightEdge() {
 function onBottomEdge() {
   if (realsnake.head.y + squareWidth >= height) return true;
   else return false;
+}
+
+function determineAmpleRemainingSpace(sn) {
+  let q = new Queue();
+  q.enqueue(sn.head);
+  let oneHorizontalTile = xOffset + squareWidth;
+  let oneVerticalTile = yOffset + squareWidth;
+  let availableSquares = {};
+  while(!q.empty()){
+    let current = q.pop();
+    if(checkCollisionsForBFS(sn, sq) || availableSquares.contains(current)) continue;
+    availableSquares.add(current);
+    if(availableSquares.length >= sn.squares.length) return true;
+    let leftSquare = new Square(current.x - oneHorizontalTile, current.y, squareWidth);
+    q.enqueue(leftSquare);
+    let upSquare = new Square(current.x, current.y - oneVerticalTile, squareWidth);
+    q.enqueue(upSquare);
+    let rightSquare = new Square(current.x + oneHorizontalTile, current.y, squareWidth);
+    q.enqueue(rightSquare);
+    let downSquare = new Square(current.x, current.y + oneVeritcalTile, squareWidth);
+    q.enqueue(downSquare);
+  }
+  return false;
 }
 ///////////////// End Util Functions /////////////////////////////////////////
 
