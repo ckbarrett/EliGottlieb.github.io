@@ -8,20 +8,26 @@ const s = (p) => {
         let hidden_nodes_2Pos = []
         let output_nodesPos = []
         let circleSpace = 27
-        let colGap = 220
-        let radius = 16
-
+        let colGap = 170
+        let diameter = 16
+        let radius = 0.5 * diameter
 
 
         // Draw input nodes
-        let inputX = 15
-        let inputY = 0
+        let inputX = 120
+        let inputY = 30
         p.stroke(10)
-        p.fill(200)
+        p.fill(0)
+        let inputLabel = "Input Nodes"
+        p.text(inputLabel, inputX - 30, 35)
+        let inputlabels = ["Danger Up", "Danger Down", "Danger Left", "Danger Right", "Facing Up", "Facing Down", "Facing Left", "Facing Right", "Food Up", "Food Down", "Food Left", "Food Right", "Distance to Food"]
         for (let i = 0; i < qlearner.brain.input_nodes; i++) {
             let x = inputX
             let y = inputY + ((i + 1) * circleSpace)
-            p.ellipse(x, y, radius)
+            p.fill(0)
+            p.text(inputlabels[i], x - 110, y + 4);
+            p.fill(200)
+            p.ellipse(x, y, diameter)
             input_nodesPos.push({ x: x, y: y })
         }
 
@@ -29,15 +35,17 @@ const s = (p) => {
         let h1X = inputX + colGap
         let h1Y = inputY
         let bias_h1 = qlearner.brain.bias_h1.toArray()
+        let h1label = "Hidden Layer 1"
+        p.fill(0)
         p.stroke(10)
+        p.text(h1label, h1X - 40, 35)
         for (let i = 0; i < qlearner.brain.hidden_nodes_1; i++) {
             let x = h1X
             let y = h1Y + ((i + 1) * circleSpace)
             let colorArr = mapToOpacity(bias_h1[i])
             p.fill(colorArr[0], colorArr[1], colorArr[2], colorArr[3])
-            p.ellipse(x, y, radius)
+            p.ellipse(x, y, diameter)
             hidden_nodes_1Pos.push({ x: x, y: y })
-
         }
 
         // Draw lines between each input node and all h1 nodes
@@ -47,13 +55,16 @@ const s = (p) => {
         let h2X = h1X + colGap
         let h2Y = inputY
         let bias_h2 = qlearner.brain.bias_h2.toArray()
+        let h2label = "Hidden Layer 2"
+        p.fill(0)
         p.stroke(10)
+        p.text(h2label, h2X - 40, 35)
         for (let i = 0; i < qlearner.brain.hidden_nodes_2; i++) {
             let x = h2X
             let y = h2Y + ((i + 1) * circleSpace)
             let colorArr = mapToOpacity(bias_h2[i])
             p.fill(colorArr[0], colorArr[1], colorArr[2], colorArr[3])
-            p.ellipse(x, y, radius)
+            p.ellipse(x, y, diameter)
             hidden_nodes_2Pos.push({ x: x, y: y })
         }
 
@@ -62,20 +73,25 @@ const s = (p) => {
 
         //Draw output nodes
         let outputX = h2X + colGap
+        // Find the total distance that the input nodes take in the y direction, find the middle, and then subtract the number of circles * the gap
         let outputY = ((input_nodesPos.length * circleSpace) - inputY) / 2 - circleSpace * 2
         let bias_output = qlearner.brain.bias_output.toArray()
+        let outputlabel = "Output Nodes"
+        p.fill(0)
         p.stroke(10)
+        p.text(outputlabel, outputX- 40, 35)
+        let outputlabels = ["Up", "Down", "Left", "Right"]
         for (let i = 0; i < qlearner.brain.output_nodes; i++) {
             let x = outputX
             let y = outputY + ((i + 1) * circleSpace)
             let colorArr = mapToOpacity(bias_output[i])
+            p.text(outputlabels[i], x + 10, y + 3);
             p.fill(colorArr[0], colorArr[1], colorArr[2], colorArr[3])
-            p.ellipse(x, y, radius)
+            p.ellipse(x, y, diameter)
             output_nodesPos.push({ x: x, y: y })
         }
 
         // Draw lines between each h2 node and all output nodes
-        //console.log(qlearner.brain.weights_h2_output.data)
         drawlines(hidden_nodes_2Pos, output_nodesPos, qlearner.brain.weights_h2_output.data)
     }
 
@@ -96,22 +112,6 @@ const s = (p) => {
                 //j += 2
             }
         }
-    }
-
-    function mapToColor(x) {
-        if (x == 0)
-            return [0, 0, 0]
-        let input = Math.abs(x)
-        let inputMax = 2
-        let inputMin = 0
-        let outputMax = 255
-        let outputMin = 0
-        let newVal = outputMin + ((outputMax - outputMin) / (inputMax - inputMin)) * (input - inputMin)
-        if (newVal > 255)
-            newVal = 255
-        if (x < 0)
-            return [255 - x, 0, x]
-        return [x, 0, 255 - x]
     }
 
     function mapToOpacity(x) {
