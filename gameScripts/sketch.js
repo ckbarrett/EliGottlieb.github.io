@@ -7,6 +7,7 @@ var apple;
 var gameOver = false;
 var inputUsed = false;
 var userInput = false;
+var isDrawBrain = true;
 var score = 0;
 var userhighscore = 0;
 var genCount = 1;
@@ -23,7 +24,7 @@ var deathReward = -10
 var safeReward = 0
 var training = 0;
 var sets = 0;
-var hiddenLayerSize = 60;
+var hiddenLayerSize = 13;
 var qlearner;
 var contGraph;
 var slider_div
@@ -145,12 +146,13 @@ function onBottomEdge() {
 //////////////// P5 Functions /////////////////////////////////////////////////
 function setup() {
   // Setup for buttons and sliders
+  document.getElementById("jimmybrain").style.display = "none"
   setButtons()
   createSliders()
 
   if (userInput) {
     highscore = 0;
-    document.getElementById("highscore").innerText = highscorew
+    document.getElementById("highscore").innerText = highscore
     slider_div.style("display", "none")
     document.getElementById("jimmyinfo").style.display = "none"
     frameRate(30)
@@ -159,14 +161,14 @@ function setup() {
   else {
     // Set headers from storage
     document.getElementById("jimmyinfo").style.display = "flex"
-    document.getElementById("hidegraph").style.display = "none"
-    document.getElementById("play").style.display = "none"
     document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
     document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"))
     document.getElementById("training-counter").innerText = "- Training: " + parseInt(window.localStorage.getItem("training"))
+
     // Create qlearner and set brain to brain informaiton saved in storage
     qlearner = new QLearner(realsnake, apple);
     downloadBrain()
+    
   }
 
   // Create canvas
