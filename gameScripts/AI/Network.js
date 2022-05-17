@@ -134,7 +134,11 @@ function uploadBrain() {
     qlearner.brain.weights_input_h1.data = JSON.parse(window.localStorage.getItem("weights_input_h1"))
     qlearner.brain.weights_h1_h2.data = JSON.parse(window.localStorage.getItem("weights_h1_h2"))
     qlearner.brain.weights_h2_output.data = JSON.parse(window.localStorage.getItem("weights_h2_output"))
-  }
+    
+    if (hiddenLayerSize != qlearner.brain.bias_h1.data.length) {
+        resetJimmy()
+    }
+}
   ///////////////// End Brain Functions /////////////////////////////////////////
   
 

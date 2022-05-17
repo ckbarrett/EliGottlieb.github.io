@@ -24,7 +24,7 @@ var deathReward = -10
 var safeReward = 0
 var training = 0;
 var sets = 0;
-var hiddenLayerSize = 13;
+var hiddenLayerSize = 30;
 var qlearner;
 var contGraph;
 var slider_div
@@ -168,7 +168,6 @@ function setup() {
     // Create qlearner and set brain to brain informaiton saved in storage
     qlearner = new QLearner(realsnake, apple);
     downloadBrain()
-    
   }
 
   // Create canvas
