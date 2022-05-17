@@ -24,7 +24,7 @@ var deathReward = -10
 var safeReward = 0
 var training = 0;
 var sets = 0;
-var hiddenLayerSize = 22;
+var hiddenLayerSize = 5;
 var qlearner;
 var contGraph;
 var slider_div
