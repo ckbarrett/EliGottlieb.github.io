@@ -1,5 +1,12 @@
 ///////////////// Button Functions ///////////////////////
 // Change userInput and all appropriate HTML elements
+var set1 = []
+var set2 = []
+var set3 = []
+var set4 = []
+var contGraph;
+var slider_div
+var framerate;
 function toggleJimmy() {
       if (userInput) {
             userInput = false
@@ -42,6 +49,13 @@ function resetJimmy() {
       window.localStorage.setItem("highscore", 0)
       window.localStorage.setItem("training", 0)
       window.localStorage.setItem("sets", 0)
+
+      // Wipe graphing data
+      set1 = []
+      set2 = []
+      set3 = []
+      set4 = []
+      hidegraph()
 
       // Reset HTML elements
       document.getElementById("training-counter").innerText = "- Trained: " + 0;
@@ -142,9 +156,10 @@ function setButtons() {
       document.getElementById("viewbrain").onclick = viewBrain
       document.getElementById("hidebrain").onclick = hideBrain
       document.getElementById("pause").style.display = "flex"
+      document.getElementById("viewbrain").style.display = "flex"
       document.getElementById("hidegraph").style.display = "none"
       document.getElementById("play").style.display = "none"
       document.getElementById("hidebrain").style.display = "none"
-
+      document.getElementById("graph").style.display = "none"
 }
     ///////////////// End Button Functions /////////////////////

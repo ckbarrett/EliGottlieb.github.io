@@ -14,21 +14,14 @@ var genCount = 1;
 var randomize_slider;
 var speed_slider;
 
-var set1 = []
-var set2 = []
-var set3 = []
-var set4 = []
-
 var appleReward = 10
 var deathReward = -10
 var safeReward = 0
 var training = 0;
 var sets = 0;
-var hiddenLayerSize = 5;
+var hiddenLayerSize = 35;
 var qlearner;
-var contGraph;
-var slider_div
-var framerate;
+
 
 ///////////////// Util Functions /////////////////////
 function checkCollisions(sn) {
@@ -169,7 +162,7 @@ function setup() {
     qlearner = new QLearner(realsnake, apple);
     downloadBrain()
   }
-
+  
   // Create canvas
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
