@@ -7,10 +7,9 @@ const s = (p) => {
         let hidden_nodes_1Pos = []
         let hidden_nodes_2Pos = []
         let output_nodesPos = []
-        let rowGap = 5
+        let rowGap = 15
         let colGap = 170
         let diameter = 20
-        let radius = 0.5 * diameter
         let inputX = 120
         let inputY = 60
         let labelY = 30
@@ -19,25 +18,28 @@ const s = (p) => {
         p.stroke(10)
         p.fill(0)
         let inputLabel = "Input Nodes"
-        p.text(inputLabel, inputX - 30, labelY)
+        p.text(inputLabel, inputX - (p.textWidth(inputLabel) / 2), labelY)
 
         // Prepare labels for the input node rows
         let inputlabels = ["Danger Up", "Danger Down", "Danger Left", "Danger Right", "Facing Up", "Facing Down", "Facing Left", "Facing Right", "Food Up", "Food Down", "Food Left", "Food Right", "Distance to Food"]
-        
+
         // Draw the input nodes and create the labels
+        let botY;
         var x = inputX
         var y = inputY
         for (let i = 0; i < qlearner.brain.input_nodes; i++) {
+            botY = y
             p.fill(0)
-            p.text(inputlabels[i], x - 110, y + 4);
+            p.text(inputlabels[i], x - (textWidth(inputlabels[i] + diameter)), y + 4);
             p.fill(200)
             p.ellipse(x, y, diameter)
             input_nodesPos.push({ x: x, y: y })
-            y += (diameter + rowGap)
+            y += (diameter / 2 + rowGap)
         }
 
         // Get display info for hidden layers [diameter, circleGap]
-        let hiddenDisplayInfo = getHiddenDisplayInfo([inputY, y - rowGap], qlearner.brain.hidden_nodes_1)
+        let yDif = (qlearner.brain.input_nodes * 20 + (qlearner.brain.input_nodes - 1) * 15)
+        let hiddenDisplayInfo = getHiddenDisplayInfo(yDif, qlearner.brain.hidden_nodes_1, (1.0 * rowGap / diameter))
         let hiddenDiameter = hiddenDisplayInfo[0]
         let hiddenRowGap = hiddenDisplayInfo[1]
 
@@ -48,19 +50,21 @@ const s = (p) => {
         let h1label = "Hidden Layer 1"
         p.fill(0)
         p.stroke(10)
-        p.text(h1label, x - 40, labelY)
+        p.text(h1label, x - (p.textWidth(h1label) / 2), labelY)
 
         // Draw the hidden layer 1 nodes and fill in with biases
+        let bothy;
         for (let i = 0; i < qlearner.brain.hidden_nodes_1; i++) {
+            bothy = y
             let colorArr = mapToOpacity(bias_h1[i])
             p.fill(colorArr[0], colorArr[1], colorArr[2], colorArr[3])
             p.ellipse(x, y, hiddenDiameter)
             hidden_nodes_1Pos.push({ x: x, y: y })
-            y += (hiddenDiameter + hiddenRowGap)
+            y += (hiddenDiameter / 2 + hiddenRowGap)
         }
 
         // Draw lines between each input node and all h1 nodes and color with weights
-        drawlines(input_nodesPos, hidden_nodes_1Pos, qlearner.brain.weights_input_h1.data, radius)
+        drawlines(input_nodesPos, hidden_nodes_1Pos, qlearner.brain.weights_input_h1.data, diameter, hiddenDiameter)
 
         // Shift the x over, and label the hidden layer 2 node column
         x += colGap
@@ -69,28 +73,28 @@ const s = (p) => {
         let h2label = "Hidden Layer 2"
         p.fill(0)
         p.stroke(10)
-        p.text(h2label, x - 40, labelY)
-        
+        p.text(h2label, x - textWidth(h2label) / 2, labelY)
+
         // Draw the hidden layer 1 nodes and fill in with biases
         for (let i = 0; i < qlearner.brain.hidden_nodes_2; i++) {
             let colorArr = mapToOpacity(bias_h2[i])
             p.fill(colorArr[0], colorArr[1], colorArr[2], colorArr[3])
             p.ellipse(x, y, hiddenDiameter)
             hidden_nodes_2Pos.push({ x: x, y: y })
-            y += (hiddenDiameter + hiddenRowGap)
+            y += (hiddenDiameter / 2 + hiddenRowGap)
         }
 
         // Draw lines between each h1 node and all h2 nodes and color with weights
-        drawlines(hidden_nodes_1Pos, hidden_nodes_2Pos, qlearner.brain.weights_h1_h2.data, radius)
+        drawlines(hidden_nodes_1Pos, hidden_nodes_2Pos, qlearner.brain.weights_h1_h2.data, hiddenDiameter, hiddenDiameter)
 
         // Shift the x over, and label the output node column
         x += colGap
-        y = (y-hiddenDiameter-hiddenRowGap) / 2 - (rowGap * 2)
+        y = botY / 2 - (rowGap * 2)
         let bias_output = qlearner.brain.bias_output.toArray()
         let outputlabel = "Output Nodes"
         p.fill(0)
         p.stroke(10)
-        p.text(outputlabel, x - 40, labelY)
+        p.text(outputlabel, x - textWidth(outputlabel) / 2, labelY)
 
         // Prepare labels for the output row nodes
         let outputlabels = ["Up", "Down", "Left", "Right"]
@@ -104,23 +108,25 @@ const s = (p) => {
             p.fill(colorArr[0], colorArr[1], colorArr[2], colorArr[3])
             p.ellipse(x, y, diameter)
             output_nodesPos.push({ x: x, y: y })
-            y += (diameter + rowGap)
+            y += (diameter / 2 + rowGap)
         }
 
         // Draw lines between each h2 node and all output nodes and color with weights
-        drawlines(hidden_nodes_2Pos, output_nodesPos, qlearner.brain.weights_h2_output.data, radius)
+        drawlines(hidden_nodes_2Pos, output_nodesPos, qlearner.brain.weights_h2_output.data, hiddenDiameter, diameter)
     }
 
-    function drawlines(startNodesArray, endNodesArrary, weights, radius) {
+    function drawlines(startNodesArray, endNodesArrary, weights, startdiameter, enddiameter) {
+        let startradius = startdiameter / 2
+        let endradius = enddiameter / 2
         for (let i = 0; i < endNodesArrary.length; i++) {
             //if (i > 0) break;
             let endNode = endNodesArrary[i]
             let weightsArray = weights[i]
             for (let j = 0; j < startNodesArray.length; j++) {
                 let startNode = startNodesArray[j]
-                let startX = startNode.x + radius
+                let startX = startNode.x + startradius
                 let startY = startNode.y
-                let endX = endNode.x - radius
+                let endX = endNode.x - endradius
                 let endY = endNode.y
                 let colorArr = mapToOpacity(weightsArray[j])
                 p.stroke(colorArr[0], colorArr[1], colorArr[2], colorArr[3])
@@ -130,10 +136,10 @@ const s = (p) => {
         }
     }
 
-    function getHiddenDisplayInfo(displayInterval, nodesNum) {
+    function getHiddenDisplayInfo(displayInterval, nodesNum, ratio) {
         // Get display info for hidden layers [diameter, circleGap]
-        let diameter = (displayInterval[1] - displayInterval[0]) / (nodesNum + 0.25 * nodesNum - 0.25)
-        let rowGap = diameter * 0.25
+        let diameter = (displayInterval) / (nodesNum + ratio * nodesNum - ratio)
+        let rowGap = (diameter * ratio)
         return [diameter, rowGap]
     }
 
