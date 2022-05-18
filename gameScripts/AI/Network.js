@@ -128,6 +128,10 @@ function uploadBrain() {
   
   // Set attributes of brain to elements in storage
   function downloadBrain() {
+    if(JSON.parse(window.localStorage.getItem("bias_h1")) == null) {
+        uploadBrain()
+        resetJimmy()
+    }
     qlearner.brain.bias_h1.data = JSON.parse(window.localStorage.getItem("bias_h1"))
     qlearner.brain.bias_h2.data = JSON.parse(window.localStorage.getItem("bias_h2"))
     qlearner.brain.bias_output.data = JSON.parse(window.localStorage.getItem("bias_output"))

@@ -33,6 +33,7 @@ function toggleJimmy() {
             hidegraph()
             document.getElementById("jimmyinfo").style.display = "none"
             document.getElementById("jimmybrain").style.display = "none"
+            document.getElementById("jimmybrainslider").style.display = "none"
             slider_div.style("display", "none")
             highscore = 0;
             document.getElementById("highscore").innerText = highscore
@@ -102,6 +103,15 @@ function createSliders() {
       // Create outside div
       slider_div = createDiv();
       slider_div.elt.style.display = "flex"
+      // Create hidden layer size label
+      hls_label = createSpan('Brainpower: ');
+      hls_label.parent(document.getElementById("jimmybrainslider"));
+      hls_label.elt.style.flex = 1
+      // Create hidden layer size slider
+      hls_slider = createSlider(1, 60, 13, 1)
+      hls_slider.parent(document.getElementById("jimmybrainslider"))
+      hls_slider.elt.style.flex = 1
+      hls_slider.elt.style.marginRight = "20px"
       // Create randomness label
       randomize_label = createSpan('Randomness: ');
       randomize_label.parent(slider_div);
@@ -135,12 +145,14 @@ function playJimmy() {
 
 function viewBrain() {
       document.getElementById("jimmybrain").style.display = "flex"
+      document.getElementById("jimmybrainslider").style.display = "flex"
       document.getElementById("viewbrain").style.display = "none"
       document.getElementById("hidebrain").style.display = "flex"
 }
 
 function hideBrain() {
       document.getElementById("jimmybrain").style.display = "none"
+      document.getElementById("jimmybrainslider").style.display = "none"
       document.getElementById("viewbrain").style.display = "flex"
       document.getElementById("hidebrain").style.display = "none"
 }
@@ -157,6 +169,7 @@ function setButtons() {
       document.getElementById("hidebrain").onclick = hideBrain
       document.getElementById("pause").style.display = "flex"
       document.getElementById("viewbrain").style.display = "flex"
+      document.getElementById("jimmybrainslider").style.display = "none"
       document.getElementById("hidegraph").style.display = "none"
       document.getElementById("play").style.display = "none"
       document.getElementById("hidebrain").style.display = "none"
