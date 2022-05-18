@@ -1,13 +1,18 @@
 ///////////////// Button Functions ///////////////////////
 // Change userInput and all appropriate HTML elements
+var set1 = []
+var set2 = []
+var set3 = []
+var set4 = []
+var contGraph;
+var slider_div
+var framerate;
 function toggleJimmy() {
       if (userInput) {
             userInput = false
             document.getElementById("jimmyinfo").style.display = "flex"
             slider_div.style("display", "flex")
-            document.getElementById("hidegraph").style.display = "none"
-            document.getElementById("pause").style.display = "flex"
-            document.getElementById("play").style.display = "none"
+            setButtons()
 
             // Set headers from storage
             document.getElementById("hidegraph").style.display = "none"
@@ -27,6 +32,7 @@ function toggleJimmy() {
             userInput = true;
             hidegraph()
             document.getElementById("jimmyinfo").style.display = "none"
+            document.getElementById("jimmybrain").style.display = "none"
             slider_div.style("display", "none")
             highscore = 0;
             document.getElementById("highscore").innerText = highscore
@@ -43,6 +49,13 @@ function resetJimmy() {
       window.localStorage.setItem("highscore", 0)
       window.localStorage.setItem("training", 0)
       window.localStorage.setItem("sets", 0)
+
+      // Wipe graphing data
+      set1 = []
+      set2 = []
+      set3 = []
+      set4 = []
+      hidegraph()
 
       // Reset HTML elements
       document.getElementById("training-counter").innerText = "- Trained: " + 0;
@@ -103,7 +116,7 @@ function createSliders() {
       framerate_label.parent(slider_div)
       framerate_label.elt.style.flex = 1
       // Create framerate slider
-      framerate_slider = createSlider(1, 60, 30, 1)
+      framerate_slider = createSlider(1, 60, 60, 1)
       framerate_slider.parent(slider_div)
       framerate_slider.elt.style.flex = 1
 }
@@ -120,6 +133,18 @@ function playJimmy() {
       document.getElementById("play").style.display = "none"
 }
 
+function viewBrain() {
+      document.getElementById("jimmybrain").style.display = "flex"
+      document.getElementById("viewbrain").style.display = "none"
+      document.getElementById("hidebrain").style.display = "flex"
+}
+
+function hideBrain() {
+      document.getElementById("jimmybrain").style.display = "none"
+      document.getElementById("viewbrain").style.display = "flex"
+      document.getElementById("hidebrain").style.display = "none"
+}
+
 // Create event listeners and onclick functions for all buttons
 function setButtons() {
       document.getElementById("togglejimmy").onclick = toggleJimmy
@@ -128,6 +153,13 @@ function setButtons() {
       document.getElementById("hidegraph").onclick = hidegraph
       document.getElementById("pause").onclick = pauseJimmy
       document.getElementById("play").onclick = playJimmy
-      
+      document.getElementById("viewbrain").onclick = viewBrain
+      document.getElementById("hidebrain").onclick = hideBrain
+      document.getElementById("pause").style.display = "flex"
+      document.getElementById("viewbrain").style.display = "flex"
+      document.getElementById("hidegraph").style.display = "none"
+      document.getElementById("play").style.display = "none"
+      document.getElementById("hidebrain").style.display = "none"
+      document.getElementById("graph").style.display = "none"
 }
     ///////////////// End Button Functions /////////////////////
