@@ -8,4 +8,7 @@ class Square {
     static copySquare(sqs) {
         return new Square (sqs.x, sqs.y, sqs.width)
     }
+    Equals(sq) {
+        return(sq.x == this.x && sq.y == this.y && sq.width == this.width)
+    }
   }

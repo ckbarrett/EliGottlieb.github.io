@@ -166,7 +166,8 @@ function getTotalOpenSquares(sn) {
   return totalSquares - sn.squares.length
 }
 
-function determineAmpleRemainingSpace(sn) {
+// isChecked should display current if true
+function determineAmpleRemainingSpace(sn, isChecked) {
   // Queue to hold squares
   let q = new Queue();
   q.enqueue(sn.head);
@@ -176,28 +177,57 @@ function determineAmpleRemainingSpace(sn) {
   let oneVerticalTile = yOffset + squareWidth;
 
   // Set to hold all available squares
-  let availableSquares = new Set()
-  while ((q.tail - q.head) != 0) {
+  let availableSquares = []
+  while (q.tail-q.head != 0) {
     let current = q.dequeue();
-    if (checkCollisionsForBFS(sn, current) || availableSquares.has(current)) {
+    let alreadyVisited = false;
+    for(let i = 0; i < availableSquares.length; i++) {
+      if(availableSquares[i].Equals(current)){
+        alreadyVisited = true
+        break;
+      }
+    }
+    if(alreadyVisited) {
+      //console.log("Current has already been looked at")
       continue;
     }
-    availableSquares.add(current);
-    if (availableSquares.size >= Math.floor(getTotalOpenSquares(sn) * 0.5)) {
-      console.log("TRUE - Available squares: " + availableSquares.size + ", Half the open squares: " + Math.floor(getTotalOpenSquares(sn) * 0.5))
-      console.log(getTotalOpenSquares(sn))
+    if (checkCollisionsForBFS(sn, current)) {
+      //console.log("Danger")
+      continue;
+    }
+
+    //fill(1)
+    //square(current.x, current.y, current.width)
+    availableSquares.push(current);
+    //console.log("Added current: " + availableSquares.length)
+
+    if (availableSquares.length >= Math.floor(getTotalOpenSquares(sn) * 0.5)) {
+      //console.log("TRUE - Available squares: " + availableSquares.length + ", Half the open squares: " + Math.floor(getTotalOpenSquares(sn) * 0.5))
+      //console.log("Total open squares: " + getTotalOpenSquares(sn))
       return true;
     }
     let leftSquare = new Square(current.x - oneHorizontalTile, current.y, squareWidth);
+    fill(200)
+    //square(leftSquare.x, leftSquare.y, leftSquare.width)
+
     q.enqueue(leftSquare);
     let upSquare = new Square(current.x, current.y - oneVerticalTile, squareWidth);
+    fill(150)
+    //square(upSquare.x, upSquare.y, upSquare.width)
+
     q.enqueue(upSquare);
     let rightSquare = new Square(current.x + oneHorizontalTile, current.y, squareWidth);
+    fill(100)
+    //square(rightSquare.x, rightSquare.y, rightSquare.width)
+
     q.enqueue(rightSquare);
     let downSquare = new Square(current.x, current.y + oneVerticalTile, squareWidth);
+    fill(100)
+    //square(downSquare.x, downSquare.y, downSquare.width)
+
     q.enqueue(downSquare);
   }
-  console.log("FALSE - Available squares: " + availableSquares.size + ", Half the open squares: " + (getTotalOpenSquares(sn) * 0.5))
+  console.log("FALSE - Available squares: " + availableSquares.length + ", Half the open squares: " + (getTotalOpenSquares(sn) * 0.5))
   return false;
 }
 ///////////////// End Util Functions /////////////////////////////////////////
@@ -306,7 +336,7 @@ function draw() {
     bestaction = qlearner.bestAction(oldState);
     doAction(bestaction, realsnake);
     qlearner.updateBrain(oldState, newstates, rewardList, dones);
-
+    determineAmpleRemainingSpace(realsnake)
     // Check apple and collisions
     checkEatingApple(realsnake, false)
     checkCollisions(realsnake, false)
@@ -318,7 +348,6 @@ function draw() {
 
     // Update the game
     realsnake.move();
-    determineAmpleRemainingSpace(realsnake)
     drawSnake();
     inputUsed = false;
   }
