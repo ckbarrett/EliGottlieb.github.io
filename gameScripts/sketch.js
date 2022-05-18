@@ -1,6 +1,8 @@
 var squareWidth = 20;
 var xOffset = 5;
 var yOffset = 5;
+var canvasWidth
+var canvasHeight
 var fr;
 var realsnake;
 var apple;
@@ -47,12 +49,13 @@ function checkCollisions(sn) {
   gameOver = gO
 }
 
-function checkCollisionsForBFS(sn, sq){
+function checkCollisionsForBFS(sn, sq) {
   // Define wall collisions
-  let hitRightWall = (sq.x + squareWidth >= width)
+  let hitRightWall = (sq.x >= canvasWidth)
   let hitLeftWall = (sq.x < 0)
-  let hitBottomWall = (sq.y + squareWidth >= height);
+  let hitBottomWall = (sq.y >= canvasHeight);
   let hitTopWall = (sq.y < 0);
+
   // Define snake collisions
   let hittingSelf = false;
   for (let i = 0; i < sn.squares.length - 1; i++) {
@@ -98,10 +101,10 @@ function checkEatingApple(sn, sim) {
 function calculateCanvasSize() {
   // Extra width and height will be split automatically when canvas is centered
   let extraWidth = (window.innerWidth % (xOffset + squareWidth)) + xOffset;
-  let canvasWidth = window.innerWidth - extraWidth;
+  canvasWidth = window.innerWidth - extraWidth;
   let extraHeightBuffer = 3 * (squareWidth + yOffset);
   let extraHeight = (window.innerHeight % (yOffset + squareWidth)) + yOffset + extraHeightBuffer;
-  let canvasHeight = window.innerHeight - extraHeight;
+  canvasHeight = window.innerHeight - extraHeight;
   return { canvasWidth, canvasHeight };
 }
 
@@ -156,17 +159,35 @@ function onBottomEdge() {
   else return false;
 }
 
+function getTotalOpenSquares(sn) {
+  let widthSquares = Math.floor(width / (squareWidth + yOffset))
+  let heightSquares = Math.floor(height / (squareWidth + xOffset))
+  let totalSquares = widthSquares * heightSquares
+  return totalSquares - sn.squares.length
+}
+
 function determineAmpleRemainingSpace(sn) {
+  // Queue to hold squares
   let q = new Queue();
   q.enqueue(sn.head);
+
+  // Space to the next square in the x and y direction
   let oneHorizontalTile = xOffset + squareWidth;
   let oneVerticalTile = yOffset + squareWidth;
+
+  // Set to hold all available squares
   let availableSquares = new Set()
-  while(!q.isEmpty()){
+  while ((q.tail - q.head) != 0) {
     let current = q.dequeue();
-    if(checkCollisionsForBFS(sn, sq) || availableSquares.has(current)) continue;
+    if (checkCollisionsForBFS(sn, current) || availableSquares.has(current)) {
+      continue;
+    }
     availableSquares.add(current);
-    if(availableSquares.size >= sn.squares.length) return true;
+    if (availableSquares.size >= Math.floor(getTotalOpenSquares(sn) * 0.5)) {
+      console.log("TRUE - Available squares: " + availableSquares.size + ", Half the open squares: " + Math.floor(getTotalOpenSquares(sn) * 0.5))
+      console.log(getTotalOpenSquares(sn))
+      return true;
+    }
     let leftSquare = new Square(current.x - oneHorizontalTile, current.y, squareWidth);
     q.enqueue(leftSquare);
     let upSquare = new Square(current.x, current.y - oneVerticalTile, squareWidth);
@@ -176,6 +197,7 @@ function determineAmpleRemainingSpace(sn) {
     let downSquare = new Square(current.x, current.y + oneVerticalTile, squareWidth);
     q.enqueue(downSquare);
   }
+  console.log("FALSE - Available squares: " + availableSquares.size + ", Half the open squares: " + (getTotalOpenSquares(sn) * 0.5))
   return false;
 }
 ///////////////// End Util Functions /////////////////////////////////////////
@@ -207,7 +229,7 @@ function setup() {
     qlearner = new QLearner(realsnake, apple);
     downloadBrain()
   }
-  
+
   // Create canvas
   let dimensions = calculateCanvasSize();
   createCanvas(dimensions.canvasWidth, dimensions.canvasHeight);
@@ -216,13 +238,15 @@ function setup() {
 
 function draw() {
   if (!userInput) {
-    // Prepare for simulation, read sliders
-    if(hls_slider.value() != hiddenLayerSize) {
+    // If hidden layer size has changed, reset hiddenLayerSize and reset Jimmy
+    if (hls_slider.value() != hiddenLayerSize) {
       hiddenLayerSize = hls_slider.value()
       resetJimmy()
     }
+
+    // Prepare for simulation, read sliders
     let oldState = qlearner.getCurrentState();;
-    let oldStateArray= oldState.toArray()
+    let oldStateArray = oldState.toArray()
     let bestaction = null;
     framerate = framerate_slider.value()
     frameRate(framerate)
@@ -262,7 +286,7 @@ function draw() {
         rewardList[i] = deathReward
       }
 
-      if(rewardList[i] == deathReward) {
+      if (rewardList[i] == deathReward) {
         dones[i] = true;
       }
 
@@ -294,6 +318,7 @@ function draw() {
 
     // Update the game
     realsnake.move();
+    determineAmpleRemainingSpace(realsnake)
     drawSnake();
     inputUsed = false;
   }
@@ -310,6 +335,7 @@ function draw() {
 
     // Update the game
     realsnake.move()
+    determineAmpleRemainingSpace(realsnake)
     drawSnake();
     inputUsed = false;
   }
