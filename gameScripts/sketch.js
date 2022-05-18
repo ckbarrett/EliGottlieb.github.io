@@ -161,19 +161,19 @@ function determineAmpleRemainingSpace(sn) {
   q.enqueue(sn.head);
   let oneHorizontalTile = xOffset + squareWidth;
   let oneVerticalTile = yOffset + squareWidth;
-  let availableSquares = {};
-  while(!q.empty()){
-    let current = q.pop();
-    if(checkCollisionsForBFS(sn, sq) || availableSquares.contains(current)) continue;
+  let availableSquares = new Set()
+  while(!q.isEmpty()){
+    let current = q.dequeue();
+    if(checkCollisionsForBFS(sn, sq) || availableSquares.has(current)) continue;
     availableSquares.add(current);
-    if(availableSquares.length >= sn.squares.length) return true;
+    if(availableSquares.size >= sn.squares.length) return true;
     let leftSquare = new Square(current.x - oneHorizontalTile, current.y, squareWidth);
     q.enqueue(leftSquare);
     let upSquare = new Square(current.x, current.y - oneVerticalTile, squareWidth);
     q.enqueue(upSquare);
     let rightSquare = new Square(current.x + oneHorizontalTile, current.y, squareWidth);
     q.enqueue(rightSquare);
-    let downSquare = new Square(current.x, current.y + oneVeritcalTile, squareWidth);
+    let downSquare = new Square(current.x, current.y + oneVerticalTile, squareWidth);
     q.enqueue(downSquare);
   }
   return false;
