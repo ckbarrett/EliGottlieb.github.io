@@ -19,7 +19,7 @@ var deathReward = -10
 var safeReward = 0
 var training = 0;
 var sets = 0;
-var hiddenLayerSize = 35;
+var hiddenLayerSize;
 var qlearner;
 
 
@@ -153,6 +153,7 @@ function setup() {
   }
   else {
     // Set headers from storage
+    hiddenLayerSize = hls_slider.value()
     document.getElementById("jimmyinfo").style.display = "flex"
     document.getElementById("highscore").innerText = parseInt(window.localStorage.getItem("highscore"))
     document.getElementById("set-counter").innerText = "- Sets: " + parseInt(window.localStorage.getItem("sets"))
@@ -172,6 +173,10 @@ function setup() {
 function draw() {
   if (!userInput) {
     // Prepare for simulation, read sliders
+    if(hls_slider.value() != hiddenLayerSize) {
+      hiddenLayerSize = hls_slider.value()
+      resetJimmy()
+    }
     let oldState = qlearner.getCurrentState();;
     let oldStateArray= oldState.toArray()
     let bestaction = null;
