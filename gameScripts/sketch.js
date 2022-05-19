@@ -22,6 +22,7 @@ var safeReward = 0
 var training = 0;
 var sets = 0;
 var hiddenLayerSize;
+var inputLayerSize = 14;
 var qlearner;
 
 
@@ -160,6 +161,7 @@ function onBottomEdge() {
 }
 
 function getTotalOpenSquares(sn) {
+
   let widthSquares = Math.floor(width / (squareWidth + yOffset))
   let heightSquares = Math.floor(height / (squareWidth + xOffset))
   let totalSquares = widthSquares * heightSquares
@@ -167,8 +169,9 @@ function getTotalOpenSquares(sn) {
 }
 
 // isChecked should display current if true
-function determineAmpleRemainingSpace(sn, isChecked) {
+function determineAmpleRemainingSpace(sim) {
   // Queue to hold squares
+  let sn = qlearner.snake
   let q = new Queue();
   q.enqueue(sn.head);
 
@@ -178,16 +181,16 @@ function determineAmpleRemainingSpace(sn, isChecked) {
 
   // Set to hold all available squares
   let availableSquares = []
-  while (q.tail-q.head != 0) {
+  while (q.tail - q.head != 0) {
     let current = q.dequeue();
     let alreadyVisited = false;
-    for(let i = 0; i < availableSquares.length; i++) {
-      if(availableSquares[i].Equals(current)){
+    for (let i = 0; i < availableSquares.length; i++) {
+      if (availableSquares[i].Equals(current)) {
         alreadyVisited = true
         break;
       }
     }
-    if(alreadyVisited) {
+    if (alreadyVisited) {
       //console.log("Current has already been looked at")
       continue;
     }
@@ -227,7 +230,13 @@ function determineAmpleRemainingSpace(sn, isChecked) {
 
     q.enqueue(downSquare);
   }
-  console.log("FALSE - Available squares: " + availableSquares.length + ", Half the open squares: " + (getTotalOpenSquares(sn) * 0.5))
+  if (sim) {
+    console.log("False in sim")
+    frameRate(0)
+  }
+  else {
+    console.log("FALSE - Available squares: " + availableSquares.length + ", Half the open squares: " + (getTotalOpenSquares(sn) * 0.5))
+  }
   return false;
 }
 ///////////////// End Util Functions /////////////////////////////////////////
@@ -321,8 +330,15 @@ function draw() {
       }
 
       // Move savedsnake based on the action in order to calculate distance
+
+
       savedsnake.move()
+      if (!dones[i] && !determineAmpleRemainingSpace(true)) {
+        qlearner.isTrapped = true;
+        rewardList[i] = deathReward
+      }
       newstates[i] = qlearner.getCurrentState()
+      qlearner.isTrapped = false;
       let distanceIndex = 12;
       if (newstates[i].toArray()[distanceIndex] < oldState.toArray()[distanceIndex]) {
         rewardList[i]++;
@@ -336,7 +352,8 @@ function draw() {
     bestaction = qlearner.bestAction(oldState);
     doAction(bestaction, realsnake);
     qlearner.updateBrain(oldState, newstates, rewardList, dones);
-    determineAmpleRemainingSpace(realsnake)
+    determineAmpleRemainingSpace(false)
+    //frameRate(0)
     // Check apple and collisions
     checkEatingApple(realsnake, false)
     checkCollisions(realsnake, false)

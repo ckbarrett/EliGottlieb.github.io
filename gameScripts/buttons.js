@@ -65,7 +65,7 @@ function resetJimmy() {
       document.getElementById("generation-counter").innerText = "- Jimmy's: " + 0;
 
       // Create new brain and overwrite old brain
-      qlearner.brain = new Network(13, hiddenLayerSize, hiddenLayerSize, 4);
+      qlearner.brain = new Network(inputLayerSize, hiddenLayerSize, hiddenLayerSize, 4);
       uploadBrain()
       restartGame()
 }
