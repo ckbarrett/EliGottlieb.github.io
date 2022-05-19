@@ -1,1 +1,0 @@
-This is a browser snake game that you can play or watch Jimmy play! Jimmy is a form of Artificial Intelligence that uses Deep Q Learning to learn how to play snake!
