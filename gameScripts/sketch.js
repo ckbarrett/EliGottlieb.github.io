@@ -331,12 +331,13 @@ function draw() {
 
     // Update the game
     realsnake.move();
+    /*
     if (!determineAmpleRemainingSpace() && qlearner.snake.color.toString() != color(0, 0, 0).toString()) {
       qlearner.snake.color = color(0, 0, 0)
       console.log("Stuck")
       //frameRate(0)
     }
-
+*/
     drawSnake();
     inputUsed = false;
   }
