@@ -161,7 +161,6 @@ function onBottomEdge() {
 }
 
 function getTotalOpenSquares(sn) {
-
   let widthSquares = Math.floor(width / (squareWidth + yOffset))
   let heightSquares = Math.floor(height / (squareWidth + xOffset))
   let totalSquares = widthSquares * heightSquares
@@ -180,16 +179,21 @@ function determineAmpleRemainingSpace(sim) {
   let oneVerticalTile = yOffset + squareWidth;
 
   // Set to hold all available squares
-  let availableSquares = []
+  let availableSquares = [];
+  let availableSquaresSet = new Set();
   while (q.tail - q.head != 0) {
     let current = q.dequeue();
     let alreadyVisited = false;
+    /*
     for (let i = 0; i < availableSquares.length; i++) {
       if (availableSquares[i].Equals(current)) {
-        alreadyVisited = true
+        alreadyVisited = true;
+        //console.log("Already visited")
         break;
       }
     }
+    */
+   alreadyVisited = availableSquaresSet.has(current.toString())
     if (alreadyVisited) {
       //console.log("Current has already been looked at")
       continue;
@@ -201,10 +205,9 @@ function determineAmpleRemainingSpace(sim) {
 
     //fill(1)
     //square(current.x, current.y, current.width)
-    availableSquares.push(current);
+    availableSquaresSet.add(current.toString());
     //console.log("Added current: " + availableSquares.length)
-
-    if (availableSquares.length >= Math.floor(getTotalOpenSquares(sn) * 0.5)) {
+    if (availableSquaresSet.size >= sn.squares.length) {
       //console.log("TRUE - Available squares: " + availableSquares.length + ", Half the open squares: " + Math.floor(getTotalOpenSquares(sn) * 0.5))
       //console.log("Total open squares: " + getTotalOpenSquares(sn))
       return true;
@@ -231,11 +234,11 @@ function determineAmpleRemainingSpace(sim) {
     q.enqueue(downSquare);
   }
   if (sim) {
-    console.log("False in sim")
-    frameRate(0)
+    //console.log("False in sim")
+    //frameRate(0)
   }
   else {
-    console.log("FALSE - Available squares: " + availableSquares.length + ", Half the open squares: " + (getTotalOpenSquares(sn) * 0.5))
+    //console.log("FALSE - Available squares: " + availableSquares.length + ", Half the open squares: " + (getTotalOpenSquares(sn) * 0.5))
   }
   return false;
 }

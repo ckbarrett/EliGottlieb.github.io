@@ -11,4 +11,7 @@ class Square {
     Equals(sq) {
         return(sq.x == this.x && sq.y == this.y && sq.width == this.width)
     }
+    toString() {
+        return "" + this.x + this.y + this.width
+    }
   }
