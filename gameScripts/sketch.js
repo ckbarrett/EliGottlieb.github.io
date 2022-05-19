@@ -16,8 +16,9 @@ var genCount = 1;
 var randomize_slider;
 var speed_slider;
 
-var appleReward = 10
-var deathReward = -10
+var appleReward = .9
+var deathReward = -.9
+var closerReward = 0.2
 var safeReward = 0
 var training = 0;
 var sets = 0;
@@ -179,7 +180,6 @@ function determineAmpleRemainingSpace(sim) {
   let oneVerticalTile = yOffset + squareWidth;
 
   // Set to hold all available squares
-  let availableSquares = [];
   let availableSquaresSet = new Set();
   while (q.tail - q.head != 0) {
     let current = q.dequeue();
@@ -202,35 +202,18 @@ function determineAmpleRemainingSpace(sim) {
       //console.log("Danger")
       continue;
     }
-
-    //fill(1)
-    //square(current.x, current.y, current.width)
     availableSquaresSet.add(current.toString());
-    //console.log("Added current: " + availableSquares.length)
     if (availableSquaresSet.size >= sn.squares.length) {
-      //console.log("TRUE - Available squares: " + availableSquares.length + ", Half the open squares: " + Math.floor(getTotalOpenSquares(sn) * 0.5))
-      //console.log("Total open squares: " + getTotalOpenSquares(sn))
       return true;
     }
     let leftSquare = new Square(current.x - oneHorizontalTile, current.y, squareWidth);
-    fill(200)
-    //square(leftSquare.x, leftSquare.y, leftSquare.width)
 
     q.enqueue(leftSquare);
     let upSquare = new Square(current.x, current.y - oneVerticalTile, squareWidth);
-    fill(150)
-    //square(upSquare.x, upSquare.y, upSquare.width)
-
     q.enqueue(upSquare);
     let rightSquare = new Square(current.x + oneHorizontalTile, current.y, squareWidth);
-    fill(100)
-    //square(rightSquare.x, rightSquare.y, rightSquare.width)
-
     q.enqueue(rightSquare);
     let downSquare = new Square(current.x, current.y + oneVerticalTile, squareWidth);
-    fill(100)
-    //square(downSquare.x, downSquare.y, downSquare.width)
-
     q.enqueue(downSquare);
   }
   if (sim) {
@@ -344,7 +327,7 @@ function draw() {
       qlearner.isTrapped = false;
       let distanceIndex = 12;
       if (newstates[i].toArray()[distanceIndex] < oldState.toArray()[distanceIndex]) {
-        rewardList[i]++;
+        rewardList[i]+=closerReward;
       }
     }
 
