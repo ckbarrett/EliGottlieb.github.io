@@ -19,7 +19,7 @@ var speed_slider;
 var appleReward = 10
 var deathReward = -10
 var closerReward = 2
-var trappedReward = 15
+var trappedReward = -15
 var safeReward = 0
 var training = 0;
 var sets = 0;
@@ -304,7 +304,7 @@ function draw() {
       }
 
       savedsnake.move()
-      if (!dones[i] && !determineAmpleRemainingSpace()) {
+      if (!determineAmpleRemainingSpace()) {
         qlearner.isTrapped = true;
         rewardList[i] += trappedReward
       }
@@ -315,6 +315,17 @@ function draw() {
         rewardList[i] += closerReward;
       }
     }
+    /*
+    if(oldState.toArray()[13] == 1) {
+      console.log("Old state")
+      console.log(oldState)
+      console.log("New states")
+      console.log(newstates)
+      console.log("Rewards")
+      console.log(rewardList)
+      frameRate(0)
+    }
+    */
 
     // Reset qlearner's snake to realsnake 
     qlearner.snake = realsnake
