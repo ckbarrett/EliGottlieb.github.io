@@ -228,7 +228,7 @@ function mapToOpacity(x) {
     if (x == 0)
         return [0, 0, 0, 0]
     let input = Math.abs(x)
-    let inputMax = 4
+    let inputMax = 3
     let inputMin = 0
     let outputMax = 255
     let outputMin = 0
