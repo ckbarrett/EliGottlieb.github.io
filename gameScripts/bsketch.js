@@ -18,7 +18,7 @@ const s = (p) => {
         // The space between rows, columns, and the diameter of nodes
         let rowGap = 4
         let colGap = 170
-        let diameter = 20
+        let diameter = 16
 
         // The starting x, y, and vertical label distance
         let inputX = 120
@@ -32,7 +32,7 @@ const s = (p) => {
         p.text(inputLabel, inputX - (p.textWidth(inputLabel) / 2), labelY)
 
         // Prepare labels for the input node rows
-        let inputlabels = ["Danger Up", "Danger Down", "Danger Left", "Danger Right", "Facing Up", "Facing Down", "Facing Left", "Facing Right", "Food Up", "Food Down", "Food Left", "Food Right", "Distance to Food", "Trapped"]
+        let inputlabels = ["Danger Up", "Danger Down", "Danger Left", "Danger Right", "Facing Up", "Facing Down", "Facing Left", "Facing Right", "Food Up", "Food Down", "Food Left", "Food Right", "Distance to food", "Trapped Up", "Trapped Down", "Trapped Left", "Trapped Right"] 
 
         // Draw the input nodes and create the labels
         var x = inputX

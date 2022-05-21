@@ -12,7 +12,6 @@ class QLearner {
         this.states = {};
         this.randomize = 1;
         this.moves = 0;
-        this.isTrapped = false;
     }
 
     getCurrentState() {
@@ -66,11 +65,13 @@ class QLearner {
         var dangerDown = 0;
         var dangerLeft = 0;
         var dangerRight = 0;
+
         // Check near walls
         if (head.x == 0) dangerLeft = 1;
         if (head.y == 0) dangerUp = 1;
         if (onRightEdge()) dangerRight = 1;
         if (onBottomEdge()) dangerDown = 1;
+
         // Check near itself
         for (let i = 0; i < this.snake.squares.length; i++) {
             let squ = this.snake.squares[i]
@@ -88,10 +89,7 @@ class QLearner {
             }
         }
         let dangerStates = [dangerUp, dangerDown, dangerLeft, dangerRight];
-        let trappedState = 0
-        if(this.isTrapped) {
-            trappedState = 1
-        }
+        let trappedState = [0,0,0,0]
         return new State(dangerStates, directionStates, foodStates, trappedState);
     }
 
@@ -237,7 +235,9 @@ class State {
         for (let i = 0; i < this.foodStates.length; i++) {
             arr.push(this.foodStates[i])
         }
-        arr.push(this.trappedState)
+        for (let i = 0; i < this.trappedState.length; i++) {
+            arr.push(this.trappedState[i])
+        }
         return arr
     }
     toString() {
@@ -251,7 +251,9 @@ class State {
         for (let i = 0; i < this.foodStates.length; i++) {
             state += this.foodStates[i] + ","
         }
-        state+=this.trappedState
+        for (let i = 0; i < this.trappedState.length; i++) {
+            state += this.trappedState[i] + ","
+        }
         return state;
     }
 }
