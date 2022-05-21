@@ -17,14 +17,14 @@ var randomize_slider;
 var speed_slider;
 
 var appleReward = 10
-var deathReward = -10
+var deathReward = -20
 var closerReward = 2
 var trappedReward = -5
 var safeReward = 0
 var training = 0;
 var sets = 0;
 var hiddenLayerSize;
-var inputLayerSize = 17;
+var inputLayerSize = 16;
 var qlearner;
 
 
@@ -271,6 +271,7 @@ function draw() {
     var savedsnake;
     var shallowsnake;
 
+    // Simulate actions in actionList
     for (let i = 0; i < actionList.length; i++) {
       // Reassign the "active" snake as the reset savedsnake
       savedsnake = Snake.copy(realsnake)
@@ -304,7 +305,7 @@ function draw() {
 
       savedsnake.move()
 
-      // Put value in for current trapped state in order to properly guess next move
+      // Save whether or not the simulated move resulted in a trapped snake
       if (!dones[i] && !determineAmpleRemainingSpace()) {
         rewardList[i] = trappedReward
         currentTrapArray[i] = 1
@@ -336,6 +337,7 @@ function draw() {
 
           shallowsnake.move()
 
+          // Save wehther or not the shallow simulated move resulted in a trapped state
           if (!determineAmpleRemainingSpace()) {
             tempTrapArray[j] = 1
           }
@@ -345,8 +347,8 @@ function draw() {
       qlearner.snake = savedsnake
       newstates[i] = qlearner.getCurrentState()
       newstates[i].trappedState = tempTrapArray
-      let distanceIndex = 12;
-      if (newstates[i].toArray()[distanceIndex] < oldState.toArray()[distanceIndex]) {
+
+      if (savedsnake.distance < realsnake.distance) {
         rewardList[i] += closerReward;
       }
     }
@@ -354,19 +356,6 @@ function draw() {
 
     // Reset qlearner's snake to realsnake 
     qlearner.snake = realsnake
-    if (!determineAmpleRemainingSpace()) {
-      console.log("Trapped")
-      /*
-      console.log("Old state")
-      console.log(oldState.trappedState)
-      console.log("New states")
-      console.log(newstates)
-      console.log("Rewards")
-      console.log(rewardList)
-      throw ("Trapped")
-      frameRate(0)
-      */
-    }
 
     // Get best action and do the action
     bestaction = qlearner.bestAction(oldState);
@@ -384,7 +373,6 @@ function draw() {
 
     // Update the game
     realsnake.move();
-
     drawSnake();
     inputUsed = false;
   }

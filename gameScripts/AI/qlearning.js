@@ -44,7 +44,6 @@ class QLearner {
         var foodRight = 0;
         var foodUp = 0;
         var foodDown = 0;
-        var distance = 0;
         if (food.x < head.x) {
             foodLeft = 1;
         } else if (food.x > head.x) {
@@ -57,8 +56,8 @@ class QLearner {
         }
 
         // Get distance to apple from head
-        distance = sigmoid(Math.sqrt(Math.pow(food.x - head.x, 2) + Math.pow(food.y - head.y, 2)) / 1000.0)
-        let foodStates = [foodUp, foodDown, foodLeft, foodRight, distance];
+        this.snake.distance = Math.sqrt(Math.pow(food.x - head.x, 2) + Math.pow(food.y - head.y, 2))
+        let foodStates = [foodUp, foodDown, foodLeft, foodRight];
 
         // Get danger to snake
         var dangerUp = 0;
