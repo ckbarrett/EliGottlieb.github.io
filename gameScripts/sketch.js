@@ -306,7 +306,7 @@ function draw() {
 
       // Put value in for current trapped state in order to properly guess next move
       if (!dones[i] && !determineAmpleRemainingSpace()) {
-        rewardList[i] += trappedReward
+        rewardList[i] = trappedReward
         currentTrapArray[i] = 1
       }
 
