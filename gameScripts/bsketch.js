@@ -109,7 +109,7 @@ const s = (p) => {
         let h2label = "Hidden Layer 2"
         p.fill(0)
         p.strokeWeight(0.3)
-        p.stroke(0.3)
+        p.stroke(10)
         p.text(h2label, x - textWidth(h2label) / 2, labelY)
         p.strokeWeight(1)
         // Draw the hidden layer 1 nodes and fill in with biases
